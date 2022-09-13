@@ -2,11 +2,58 @@
 Create an account on GitHub if you don't have one already.
 
 ## Step 2: Configure an SSH key
-Using an SSH key will allow you to interact with your GitHub repositories without having to type your password regularly. This works very similarly to the SSH key you setup for your server.
 
-Since you have setup your SSH key with your Digital Ocean machine, then all you should need to do is [copy your public key to your GitHub account as described here](https://help.github.com/en/github/authenticating-to-github/adding-a-new-ssh-key-to-your-github-account).
+# Generating a new SSH key
+[Go here for more detailed instructions](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key)
 
-If you run into difficulties, you may want to check the [official GitHub instructions](https://help.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh).
+Open Terminal.
+Paste the text below, substituting in your GitHub email address.
+```
+$ ssh-keygen -t ed25519 -C "your_email@example.com"
+```
+
+When you're prompted to "Enter a file in which to save the key," press Enter. This accepts the default file location.
+```
+> Enter a file in which to save the key (/Users/you/.ssh/id_algorithm): [Press enter]
+```
+
+At the prompt, type a secure passphrase. For more information, see "Working with SSH key passphrases."
+```
+> Enter passphrase (empty for no passphrase): [Type a passphrase]
+> Enter same passphrase again: [Type passphrase again]
+```
+
+# Adding your SSH key to the ssh-agent
+
+Start the ssh-agent in the background.
+```
+$ eval "$(ssh-agent -s)"
+> Agent pid #####
+```
+Depending on your environment, you may need to use a different command. For example, you may need to use root access by running sudo -s -H before starting the ssh-agent, or you may need to use exec ssh-agent bash or exec ssh-agent zsh to run the ssh-agent.
+
+Add your SSH private key to the ssh-agent and store your passphrase in the keychain. If you created your key with a different name, or if you are adding an existing key that has a different name, replace id_ed25519 in the command with the name of your private key file.
+```
+$ ssh-add -K ~/.ssh/id_ed25519
+```
+
+# Adding a new SSH key to your GitHub account
+[Go here for more detailed instructions](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)
+
+Copy the SSH public key to your clipboard.
+If your SSH public key file has a different name than the example code, modify the filename to match your current setup. When copying your key, don't add any newlines or whitespace.
+```
+$ pbcopy < ~/.ssh/id_ed25519.pub
+  # Copies the contents of the id_ed25519.pub file to your clipboard
+```
+In the upper-right corner of any page, click your profile photo, then click Settings.
+In the "Access" section of the sidebar, click  SSH and GPG keys.
+Click New SSH key or Add SSH key.
+In the "Title" field, add a descriptive label for the new key. For example, if you're using a personal laptop, you might call this key "Personal laptop".
+Select that this is an authentication key.
+Paste your key into the "Key" field.
+Click Add SSH key.
+If prompted, confirm access to your account on GitHub.
 
 ## Step 3: Configure git
 If you haven't done this already, you should configure git with your name, email address, and preferred editor.
