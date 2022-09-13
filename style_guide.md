@@ -1,7 +1,7 @@
-Comments
+Comments<br />
   •Descriptive comments for each function, code paragraph, and algorithm
   
-White Space
+White Space<br />
   •Use the indent key (4 spaces)
   •Math should be inline
   •If an expression is too long, wrap before a binary operator
