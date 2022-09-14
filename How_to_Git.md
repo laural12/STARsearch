@@ -85,9 +85,9 @@ Open a terminal and go to the directory where you want to clone the files. Git a
 Run this command:
 ```
 git clone git@github.com:laural12/STARsearch.git
-``
+```
 To view the files, go to the new directory:
-``
+```
 cd STARsearch
 ```
 
