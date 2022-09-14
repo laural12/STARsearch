@@ -23,3 +23,10 @@ Shortcuts:
 - **cd -** to return to previous directory (revert previous **cd** command)
 Note that a tab will fill in the rest of the name you are typing if only one file or folder matches that name.
 
+### ls
+This command displays the contents of a directory (by default, your current working directory).
+- **ls -a** displays all contents (even hidden directories)
+- **ls -l** displays more detailed information (e.g. file size and permissions)
+
+### cat
+This command prints out the contents of a file to the terminal (technically to stdout but this is usually terminal)
