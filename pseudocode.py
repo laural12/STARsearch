@@ -1,10 +1,7 @@
-#initialization
-  # orientation sensor
-# use a compass to determine azimuth, elevation
-# store heading data on power down
+
 
   # gps installation
-#figure out how to get lat, long, elev from the gps
+#figure out how to get lat, long, elev from the gps - maybe can be manually loaded on installation
 
   # position data
 #load antenna lat,long, elevation
@@ -16,10 +13,37 @@ alt_pr = 1439 #meters
 
 # acquisition
   # user input
+def ui(satellite, antenna, threshold):
+  """This function receives interactions from the user and calls all the rest of the code"""
+  #initialization
+  # orientation sensor
+  # use a compass to determine azimuth, elevation
+  # store heading data on power down  
+  orient()
+  #acquire new satellite
+  acquire(satellite, antenna, threshold)
+  # output: signal strength, current, heading, connected satellite
+  # continuous while moving, update 1/loop
+  # GUI - what library to make using?
+
+
+def getLat(satellite):
+  """Uses TLE to get latitude of the satellite"""
+
+def getLong(satellite):
+  """Uses TLE to get longitude of the satellite"""
+
+def acquire(satellite, antenna, threshold):
+  """acquires and focuses in on new antenna"""
+  latSat = getLat(satellite)
+  longSat = getLong(satellite)
 # Satellite to acquire
   # satellite lat, long, elev(35,786 km), polarization
   # find from a database somewhere??
   # TLE????
+
+def orient():
+  """orients itself, saves as global variables"""
 
 # calculate new az/el
     # math
@@ -43,9 +67,7 @@ alt_pr = 1439 #meters
   # something using polarization which we dont understand???
   # do something like 30% 70% on the polarization sensors
 
-# output: signal strength, current, heading, connected satellite
-  # continuous while moving, update 1/loop
-  # GUI - what library to make using?
+
 
 # maintain gain
   # check every x hr?/min? to see if gain has changed
@@ -61,8 +83,8 @@ alt_pr = 1439 #meters
   
   # possible sm setup
   
-  """
-  states:
+
+  '''states:
     initializaion
     user input
     calculate
@@ -71,6 +93,4 @@ alt_pr = 1439 #meters
     stationkeeping
     await commands
     
-  Always allow for user input to restart the sm
-  
-  """
+  Always allow for user input to restart the sm'''
