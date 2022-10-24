@@ -48,6 +48,12 @@ def acquire(TLE, antenna, threshold):
   polarization()
   focus()
 
+def findShortestTurn(angle):
+  if (angle > 180):
+    angle = angle -360
+  elif (angle < -180):
+    angle = angle + 360
+  return angle
 
 def orient():
   """orients itself, saves as global variables"""
