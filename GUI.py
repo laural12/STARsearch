@@ -2,8 +2,7 @@ import PySimpleGUI as sg
 
 sg.theme('DarkBlue1')
 
-layout = [  [sg.Image(filename="STARsearch.png", size=(300,130))],
-            [sg.Text('Choose Antenna:')],
+layout = [  [sg.Text('Choose Antenna:')],
             [sg.Combo(['Antenna 1', 'Antenna 2', 'Antenna 3'], background_color='Slategray2', key='Ant', text_color='black')],
             [sg.Text('Choose Satellite:')],
             [sg.Combo(['Satellite 1', 'Satellite 2', 'Satellite 3'], background_color="Slategray2", key='Sat', text_color='black')],
