@@ -44,11 +44,11 @@ def acquire(TLE, antenna, threshold):
     # TLE????
   orient = getNewOrientation(latSat,longSat)
 
-  move(az_ant - orient["azimuth"], el_ant - orient["elevation"])
+  move(findShortestAngle(az_ant - orient["azimuth"]), el_ant - orient["elevation"])
   polarization()
   focus()
 
-def findShortestTurn(angle):
+def findShortestAngle(angle):
   if (angle > 180):
     angle = angle -360
   elif (angle < -180):
