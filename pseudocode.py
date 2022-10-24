@@ -1,3 +1,9 @@
+#####################################################################
+## NOTE: To generate docstring HTML documentation for this file, type 
+##          python3 -m pydoc -w pseudocode
+## into the command line. (I only tested with a linux command line, 
+## it might also work with windows.)
+#####################################################################
 
 import AltAzRange
   # gps installation
