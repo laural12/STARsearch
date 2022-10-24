@@ -3,9 +3,9 @@
 ## pip install altazrange
 ###############################################
 
-from AltAzRange import AltAzimuthRange
+import AltAzRange
 
-satellite = AltAzimuthRange()
+satellite = AltAzRange.AltAzimuthRange()
 satellite.observer(46.947, 7.4442, 1387)
 satellite.target(0, 13, 35800000)
 
