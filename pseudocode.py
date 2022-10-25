@@ -1,5 +1,3 @@
-
-
 import AltAzRange
   # gps installation
 #figure out how to get lat, long, elev from the gps - maybe can be manually loaded on installation
