@@ -55,6 +55,7 @@ def acquire(TLE, antenna, threshold):
   focus()
 
 def findShortestAngle(angle):
+  """ Finds angle between -180 and 180 to turn to achieve desired angle. EX: findShortestAngle(270) returns -90 """
   if (angle > 180):
     angle = angle -360
   elif (angle < -180):
