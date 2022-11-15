@@ -12,8 +12,8 @@ el_ant = 0
 
 # acquisition
   # user input
-def ui(satellite, antenna, threshold):
-  """This function receives interactions from the user and calls all the rest of the code"""
+def controller(satellite, antenna, threshold):
+  """This function receives interactions from the controller and calls all the rest of the code"""
   #initialization
   # orientation sensor
   # use a compass to determine azimuth, elevation
