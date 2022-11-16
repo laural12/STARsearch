@@ -8,7 +8,7 @@
 <td valign=bottom>&nbsp;<br>
 <font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>pseudocode</strong></big></big></font></td
 ><td align=right valign=bottom
-><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="https://github.com/laural12/STARsearch/blob/main/pseudocode.html">GitHub</a></font></td></tr></table>
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="GitHub">https://github.com/laural12/STARsearch/blob/main/pseudocode.py/a></font></td></tr></table>
     <p></p>
 <p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
@@ -26,18 +26,21 @@
     
 <tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
 <td width="100%"><dl><dt><a name="-acquire"><strong>acquire</strong></a>(TLE, antenna, threshold)</dt><dd><tt>acquires&nbsp;and&nbsp;focuses&nbsp;in&nbsp;on&nbsp;new&nbsp;antenna</tt></dd></dl>
+ <dl><dt><a name="-brain"><strong>brain</strong></a>(satellite, antenna, threshold)</dt><dd><tt>This&nbsp;function&nbsp;receives&nbsp;interactions&nbsp;from&nbsp;the&nbsp;controller&nbsp;and&nbsp;calls&nbsp;all&nbsp;the&nbsp;rest&nbsp;of&nbsp;the&nbsp;code</tt></dd></dl>
  <dl><dt><a name="-findShortestAngle"><strong>findShortestAngle</strong></a>(angle)</dt><dd><tt>Finds&nbsp;angle&nbsp;between&nbsp;-180&nbsp;and&nbsp;180&nbsp;to&nbsp;turn&nbsp;to&nbsp;achieve&nbsp;desired&nbsp;angle.&nbsp;EX:&nbsp;<a href="#-findShortestAngle">findShortestAngle</a>(270)&nbsp;returns&nbsp;-90</tt></dd></dl>
  <dl><dt><a name="-focus"><strong>focus</strong></a>()</dt><dd><tt>focuses&nbsp;antenna&nbsp;on&nbsp;the&nbsp;satellite</tt></dd></dl>
  <dl><dt><a name="-getLat"><strong>getLat</strong></a>(TLE)</dt><dd><tt>Uses&nbsp;TLE&nbsp;to&nbsp;get&nbsp;latitude&nbsp;of&nbsp;the&nbsp;satellite</tt></dd></dl>
  <dl><dt><a name="-getLong"><strong>getLong</strong></a>(TLE)</dt><dd><tt>Uses&nbsp;TLE&nbsp;to&nbsp;get&nbsp;longitude&nbsp;of&nbsp;the&nbsp;satellite</tt></dd></dl>
  <dl><dt><a name="-getNewOrientation"><strong>getNewOrientation</strong></a>(latSat, longSat)</dt><dd><tt>uses&nbsp;AltAzRange&nbsp;to&nbsp;calculate&nbsp;the&nbsp;new&nbsp;orientation&nbsp;for&nbsp;the&nbsp;antenna</tt></dd></dl>
+ <dl><dt><a name="-kill"><strong>kill</strong></a>()</dt><dd><tt>stops&nbsp;all&nbsp;operations,&nbsp;returns&nbsp;status&nbsp;to&nbsp;controller</tt></dd></dl>
  <dl><dt><a name="-maintain"><strong>maintain</strong></a>()</dt><dd><tt>maintains&nbsp;gain&nbsp;by&nbsp;constantly&nbsp;focusing&nbsp;in&nbsp;on&nbsp;peak&nbsp;or&nbsp;threshold,&nbsp;awaits&nbsp;further&nbsp;commands</tt></dd></dl>
  <dl><dt><a name="-move"><strong>move</strong></a>(az, el)</dt><dd><tt>moves&nbsp;actuators&nbsp;to&nbsp;the&nbsp;right&nbsp;place&nbsp;-&nbsp;only&nbsp;rough&nbsp;moving</tt></dd></dl>
  <dl><dt><a name="-moveAz"><strong>moveAz</strong></a>(az)</dt><dd><tt>moves&nbsp;slew&nbsp;drive</tt></dd></dl>
  <dl><dt><a name="-moveEl"><strong>moveEl</strong></a>(el)</dt><dd><tt>moves&nbsp;linear&nbsp;actuator</tt></dd></dl>
  <dl><dt><a name="-orient"><strong>orient</strong></a>()</dt><dd><tt>orients&nbsp;itself,&nbsp;saves&nbsp;as&nbsp;global&nbsp;variables</tt></dd></dl>
  <dl><dt><a name="-polarization"><strong>polarization</strong></a>()</dt><dd><tt>matches&nbsp;polarization&nbsp;to&nbsp;the&nbsp;satellite</tt></dd></dl>
- <dl><dt><a name="-ui"><strong>ui</strong></a>(satellite, antenna, threshold)</dt><dd><tt>This&nbsp;function&nbsp;receives&nbsp;interactions&nbsp;from&nbsp;the&nbsp;user&nbsp;and&nbsp;calls&nbsp;all&nbsp;the&nbsp;rest&nbsp;of&nbsp;the&nbsp;code</tt></dd></dl>
+ <dl><dt><a name="-receive"><strong>receive</strong></a>(type, satellite=None, antenna=None, threshold=None)</dt><dd><tt>receives&nbsp;communication&nbsp;from&nbsp;the&nbsp;controller</tt></dd></dl>
+ <dl><dt><a name="-send"><strong>send</strong></a>(status)</dt><dd><tt>sends&nbsp;status&nbsp;back&nbsp;to&nbsp;controller</tt></dd></dl>
 </td></tr></table><p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#55aa55">

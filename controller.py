@@ -12,7 +12,7 @@ def ui():
         kill()
 
 
-    while not acquired:
+    while not status.acquired:
         light(green, flash)
         #show progress indicator
         #perhaps flashing green light
@@ -43,3 +43,6 @@ def kill():
 
 def light(color, style=None):
     '''function flashes a light on GUI'''
+
+def receive(status):
+    '''receives status of the brain'''

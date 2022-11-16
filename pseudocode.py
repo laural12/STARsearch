@@ -12,7 +12,7 @@ el_ant = 0
 
 # acquisition
   # user input
-def controller(satellite, antenna, threshold):
+def brain(satellite, antenna, threshold):
   """This function receives interactions from the controller and calls all the rest of the code"""
   #initialization
   # orientation sensor
@@ -25,7 +25,6 @@ def controller(satellite, antenna, threshold):
   # continuous while moving, update 1/loop
   # GUI - what library to make using?
   maintain()
-
 
 def getLat(TLE):
   """Uses TLE to get latitude of the satellite"""
@@ -119,14 +118,27 @@ def maintain():
 
   # await further commands
     # sm state
+  #this conditional may not be necessary, may be covered by controller code
   if (furtherCommand):
-    ui(TLE, antenna, dB)
+    receive(type, satellite, antenna, threshold)
   
   
   # possible sm setup
   
+def receive(type, satellite=None, antenna=None, threshold=None):
+  '''receives communication from the controller'''
+  if type != kill:
+    brain(satellite, antenna, threshold)
+  else: kill()
 
-  '''states:
+def kill():
+  '''stops all operations, returns status to controller'''
+  send(dead)
+
+def send(status):
+  '''sends status back to controller'''
+
+"""states:
     initializaion
     user input
     calculate
@@ -135,4 +147,4 @@ def maintain():
     stationkeeping
     await commands
     
-  Always allow for user input to restart the sm'''
+  Always allow for user input to restart the sm"""
