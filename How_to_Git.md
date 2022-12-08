@@ -117,3 +117,11 @@ Before you move on, run the git status command and you will see that you have on
 Next, you will setup your repository so you can push your changes to your GItHub account. This is called a "remote" repository. You want to do this so that your files are all stored on GitHub, in case your laptop crashes.
 
 # Good to go
+
+
+#####################################################################
+## NOTE: To generate docstring HTML documentation for this file, type 
+##          python3 -m pydoc -w pseudocode
+## into the command line. (I only tested with a linux command line, 
+## it might also work with windows.)
+#####################################################################
