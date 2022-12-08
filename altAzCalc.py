@@ -8,16 +8,33 @@ import AltAzRange
 
 satellite = AltAzRange.AltAzimuthRange()
 
-prompt_input = True
+prompt_input = False
 
 # Default values. If you want to change values directly in this file, change them here and set prompt_input = False
-ob_lat, ob_lon, ob_alt = 0.0, 0.0, 0.0
-sat_lat, sat_lon, sat_alt = 0.0, 0.0, 0.0
+ob_lat, ob_lon, ob_alt = 360.0, 360.0, 1387.0  # 40.0, 111.0, 1387.0
+sat_lat, sat_lon, sat_alt = 0.0, 360.0, 35800000.0  # 0.0, 154.0, 35800000.0
 
 if prompt_input:
     # Take input
-    ob_lat, ob_lon, ob_alt = [float(x) for x in input("Enter latitude, longitude, altitude of observer as comma-space-separated list: ").split(", ")]
-    sat_lat, sat_lon, sat_alt = [float(x) for x in input("Enter latitude, longitude, altitude of satellite as comma-space-separated list: ").split(", ")]
+    ob_lat, ob_lon, ob_alt = [
+        float(x)
+        for x in input(
+            "Enter latitude, longitude, altitude of observer as comma-space-separated list: "
+        ).split(", ")
+    ]
+    sat_lat, sat_lon, sat_alt = [
+        float(x)
+        for x in input(
+            "Enter latitude, longitude, altitude of satellite as comma-space-separated list: "
+        ).split(", ")
+    ]
+
+ob_lat = ob_lat % 360
+ob_lon = ob_lon % 360
+ob_alt = ob_alt % 360
+sat_lat = sat_lat % 360
+sat_lon = sat_lon % 360
+sat_alt = sat_alt % 360
 
 satellite.observer(ob_lat, ob_lon, ob_alt)  # Params: lat, lon, altitude
 satellite.target(sat_lat, sat_lon, sat_alt)  # Params: lat, lon, altitude
