@@ -3,16 +3,17 @@ import AltAzRange
 # gps installation
 # figure out how to get lat, long, elev from the gps - maybe can be manually loaded on installation
 
-# position data
-# load antenna lat,long, elevation
-lat_pr = 40.246638
-long_pr = -111.646856
-alt_pr = 1439  # meters
-az_ant = 0
-el_ant = 0
-
 
 class controller:
+    def __init__(self):
+        # position data
+        # load antenna lat,long, elevation
+        self.lat_pr = 40.246638
+        self.long_pr = -111.646856
+        self.alt_pr = 1439  # meters
+        self.az_ant = 0
+        self.el_ant = 0
+
     # acquisition
     # user input
     def ui(self, satellite, antenna, threshold):
@@ -47,8 +48,8 @@ class controller:
         orient = self.getNewOrientation(latSat, longSat)
 
         self.move(
-            self.findShortestAngle(az_ant - orient["azimuth"]),
-            el_ant - orient["elevation"],
+            self.findShortestAngle(self.az_ant - orient["azimuth"]),
+            self.el_ant - orient["elevation"],
         )
         self.polarization()
         self.focus()
@@ -62,15 +63,14 @@ class controller:
         return angle
 
     def orient(self):
-        """orients itself, saves as global variables"""
-        global az_ant, el_ant
-        az_ant = 0  # antenna azimuth
-        el_ant = 0  # antenna elevation
+        """orients itself, saves as class variables"""
+        self.az_ant = 0  # antenna azimuth
+        self.el_ant = 0  # antenna elevation
 
     def getNewOrientation(self, latSat, longSat):
         """uses AltAzRange to calculate the new orientation for the antenna"""
         satellite = AltAzRange.AltAzimuthRange()
-        satellite.observer(lat_pr, long_pr, alt_pr)
+        satellite.observer(self.lat_pr, self.long_pr, self.alt_pr)
         satellite.target(latSat, longSat, 35786000)
         # calculate new az/el
         # math
