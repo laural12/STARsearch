@@ -1,22 +1,47 @@
-import WiringPi.GPIO as GPIO
+import sys
+import time
 
+path = "/home/odroid/.local/lib/python3.10/site-packages"
+sys.path.insert(0,path)
+import odroid_wiringpi as wpi
 
-# # Set GPIO numbering mode
-GPIO.setmode(GPIO.BOARD)
+OUTPUT = 1
+HIGH = 1
+LOW = 0
 
-# Set pin 22 as an output, and set servo1 as pin 22 as PWM
-GPIO.setup(22, GPIO.OUT)  # CHOOSE NEW PIN: GPIO 24
-GPIO.setup(13, GPIO.OUT)  # GPIO 21
-GPIO.setup(15, GPIO.OUT)  # GPIO 22
-GPIO.setup(16, GPIO.OUT)  # GPIO 19
-GPIO.setup(29, GPIO.OUT)  # GPIO 28
-GPIO.setup(31, GPIO.OUT)  # GPIO 30
-GPIO.setup(33, GPIO.OUT)  # GPIO 31
-GPIO.setup(26, GPIO.OUT)  # CHOOSE NEW PIN: GPIO 25
+# Set GPIO numbering mode - this means you want to use the number listed as GPIO(#number)
+wpi.wiringPiSetupGpio()
+
+# Set GPIO 24 as an output, and set servo1 as GPIO 24 as PWM
+wpi.pinMode(24, OUTPUT)
+wpi.pinMode(21, OUTPUT)
+wpi.pinMode(22, OUTPUT)
+wpi.pinMode(19, OUTPUT) 
+wpi.pinMode(28, OUTPUT)
+wpi.pinMode(30, OUTPUT)
+wpi.pinMode(31, OUTPUT)
+wpi.pinMode(25, OUTPUT)
 
 
 class Rotation:
     def rotate(self):
         #### retract the linear actuator
         print("Called function rotate()")
-        GPIO.output(22, GPIO.HIGH)
+        wpi.digitalWrite(21, LOW)
+        wpi.digitalWrite(22, HIGH)
+        
+        
+        wpi.digitalWrite(24, HIGH) # PWM to move motor
+        
+        #while True:
+        #    time.sleep(10)
+        #wpi.digitalWrite(24, LOW)
+        
+def main():
+    myrotate = Rotation()
+    
+    myrotate.rotate()
+    
+    
+if __name__ == "__main__":
+    main()
