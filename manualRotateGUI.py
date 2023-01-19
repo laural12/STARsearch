@@ -38,9 +38,9 @@ def make_window():
 
     rightCol = [
         [sg.Button("Start Az")],
-        [sg.Button("Stop Az")],
+        [sg.Button("Reset Az")],
         [sg.Button("Start El")],
-        [sg.Button("Stop El")],
+        [sg.Button("Reset El")],
         [sg.Button("Cancel")],
     ]
 
@@ -94,12 +94,12 @@ while True:
     elif event == "Start Az":
         print("Start Az")
         myRotate.azStart()
-    elif event == "Stop Az":
-        print("Stop Az")
-        myRotate.azStop()
+    elif event == "Reset Az":
+        print("Reset Az")
+        myRotate.azReset()
     elif event == "Start El":
         print("Start El")
         myRotate.elStart()
-    elif event == "Stop El":
-        print("Stop El")
-        myRotate.elStop()
+    elif event == "Reset El":
+        print("Reset El")
+        myRotate.elReset()

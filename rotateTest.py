@@ -1,89 +1,89 @@
-import WiringPi.GPIO as GPIO
+# import WiringPi.GPIO as GPIO
 
 
-# import sys
-# import time
+import sys
+import time
 
-# path = "/home/odroid/.local/lib/python3.10/site-packages"
-# sys.path.insert(0, path)
-# # import odroid_wiringpi as wpi
+path = "/home/odroid/.local/lib/python3.10/site-packages"
+sys.path.insert(0, path)
+import odroid_wiringpi as wpi
 
 
 OUTPUT = 1
 HIGH = 1
 LOW = 0
 
-EL_PWM = 22
-EL_LEFT_EN = 13
-EL_RIGHT_EN = 15
-AZ_PWM = 16
-AZ_LEFT_EN = 29
-AZ_RIGHT_EN = 31
-FILLER_1 = 33
-FILLER_2 = 26
+EL_PWM = 24
+EL_LEFT_EN = 21
+EL_RIGHT_EN = 22
+AZ_PWM = 19
+AZ_LEFT_EN = 28
+AZ_RIGHT_EN = 30
+FILLER_1 = 31
+FILLER_2 = 25
 
 # # Set GPIO numbering mode
-GPIO.setmode(GPIO.BOARD)
+wpi.wiringPiSetupGpio()
 
 # Set pin 22 as an output, and set servo1 as pin 22 as PWM
-GPIO.setup(EL_PWM, GPIO.OUT)  # CHOOSE NEW PIN: GPIO 24
-GPIO.setup(EL_LEFT_EN, GPIO.OUT)  # GPIO 21
-GPIO.setup(EL_RIGHT_EN, GPIO.OUT)  # GPIO 22
-GPIO.setup(AZ_PWM, GPIO.OUT)  # GPIO 19
-GPIO.setup(AZ_LEFT_EN, GPIO.OUT)  # GPIO 28
-GPIO.setup(AZ_RIGHT_EN, GPIO.OUT)  # GPIO 30
-GPIO.setup(FILLER_1, GPIO.OUT)  # GPIO 31
-GPIO.setup(FILLER_2, GPIO.OUT)  # CHOOSE NEW PIN: GPIO 25
+wpi.pinMode(EL_PWM, OUTPUT)  # CHOOSE NEW PIN: GPIO 24
+wpi.pinMode(EL_LEFT_EN, OUTPUT)  # GPIO 21
+wpi.pinMode(EL_RIGHT_EN, OUTPUT)  # GPIO 22
+wpi.pinMode(AZ_PWM, OUTPUT)  # GPIO 19
+wpi.pinMode(AZ_LEFT_EN, OUTPUT)  # GPIO 28
+wpi.pinMode(AZ_RIGHT_EN, OUTPUT)  # GPIO 30
+wpi.pinMode(FILLER_1, OUTPUT)  # GPIO 31
+wpi.pinMode(FILLER_2, OUTPUT)  # CHOOSE NEW PIN: GPIO 25
 
 
 class Rotation:
     def rotate(self):
         #### retract the linear actuator
         print("Called function rotate()")
-        # wpi.digitalWrite(EL_LEFT_EN, LOW)
-        # wpi.digitalWrite(EL_RIGHT_EN, HIGH)
+        #wpi.digitalWrite(EL_LEFT_EN, LOW)
+        #wpi.digitalWrite(EL_RIGHT_EN, HIGH)
 
-        # wpi.digitalWrite(EL_PWM, HIGH)  # PWM to move motor
+        wpi.digitalWrite(EL_PWM, LOW)  # PWM to move motor
 
     def azLeftEn(self):
         print("Called function azLeftEn()")
-        # wpi.digitalWrite(AZ_LEFT_EN, HIGH)  # Az left enable
+        wpi.digitalWrite(AZ_LEFT_EN, HIGH)  # Az left enable
 
     def azRightEn(self):
         print("Called function azRightEn()")
-        # wpi.digitalWrite(AZ_RIGHT_EN, HIGH)  # Az right enable
+        wpi.digitalWrite(AZ_RIGHT_EN, HIGH)  # Az right enable
 
     def elLeftEn(self):
         print("Called function elLeftEn()")
-        # wpi.digitalWrite(EL_LEFT_EN, HIGH)  # El left enable
+        wpi.digitalWrite(EL_LEFT_EN, HIGH)  # El left enable
 
     def elRightEn(self):
         print("Called function elRightEn()")
-        # wpi.digitalWrite(EL_RIGHT_EN, HIGH)  # El right enable
+        wpi.digitalWrite(EL_RIGHT_EN, HIGH)  # El right enable
 
     def azStart(self):
         print("Called function azStart()")
-        # wpi.digitalWrite(AZ_PWM, HIGH)  # az start
+        wpi.digitalWrite(AZ_PWM, HIGH)  # az start
 
     def elStart(self):
         print("Called function elStart()")
-        # wpi.digitalWrite(EL_PWM, HIGH)  # El start
+        wpi.digitalWrite(EL_PWM, HIGH)  # El start
 
-    def azStop(self):
-        print("Called function azStop()")
-
-        # reset everything
-        # wpi.digitalWrite(AZ_PWM, LOW)  # az start
-        # wpi.digitalWrite(AZ_LEFT_EN, LOW)  # Az left disable
-        # wpi.digitalWrite(AZ_RIGHT_EN, LOW)  # Az left disable
-
-    def azStop(self):
-        print("Called function elStop()")
+    def azReset(self):
+        print("Called function azReset()")
 
         # reset everything
-        # wpi.digitalWrite(EL_PWM, LOW)  # el start
-        # wpi.digitalWrite(EL_LEFT_EN, LOW)  # el left disable
-        # wpi.digitalWrite(EL_RIGHT_EN, LOW)  # el left disable
+        wpi.digitalWrite(AZ_PWM, LOW)  # az start
+        wpi.digitalWrite(AZ_LEFT_EN, LOW)  # Az left disable
+        wpi.digitalWrite(AZ_RIGHT_EN, LOW)  # Az left disable
+
+    def elReset(self):
+        print("Called function elReset()")
+
+        # reset everything
+        wpi.digitalWrite(EL_PWM, LOW)  # el start
+        wpi.digitalWrite(EL_LEFT_EN, LOW)  # el left disable
+        wpi.digitalWrite(EL_RIGHT_EN, LOW)  # el left disable
 
 
 def main():
