@@ -9,6 +9,7 @@ sys.path.insert(0, path)
 import odroid_wiringpi as wpi
 
 
+INPUT = 0
 OUTPUT = 1
 HIGH = 1
 LOW = 0
@@ -19,8 +20,17 @@ EL_RIGHT_PWM = 22
 AZ_ENABLE = 19
 AZ_LEFT_PWM = 28
 AZ_RIGHT_PWM = 30
-FILLER_1 = 31
-FILLER_2 = 25
+# FILLER_1 = 31
+# FILLER_2 = 25
+
+# input pins
+AZ_ENC1 =
+AZ_ENC2 = 
+EL_ENC1 =
+EL_ENC2 = 
+LIMIT_ENC_AZ =
+LIMIT_ENC_EL =  
+ANTENNA_INPUT = # ???? 
 
 # # Set GPIO numbering mode
 wpi.wiringPiSetupGpio()
@@ -32,8 +42,17 @@ wpi.pinMode(EL_RIGHT_PWM, OUTPUT)  # GPIO 22
 wpi.pinMode(AZ_ENABLE, OUTPUT)  # GPIO 19
 wpi.pinMode(AZ_LEFT_PWM, OUTPUT)  # GPIO 28
 wpi.pinMode(AZ_RIGHT_PWM, OUTPUT)  # GPIO 30
-wpi.pinMode(FILLER_1, OUTPUT)  # GPIO 31
-wpi.pinMode(FILLER_2, OUTPUT)  # CHOOSE NEW PIN: GPIO 25
+# wpi.pinMode(FILLER_1, OUTPUT)  # GPIO 31
+# wpi.pinMode(FILLER_2, OUTPUT)  # CHOOSE NEW PIN: GPIO 25
+
+# Set input pins
+wpi.pinMode(AZ_ENC1, INPUT)  # GPIO 
+wpi.pinMode(AZ_ENC2, INPUT)  # GPIO 
+wpi.pinMode(EL_ENC1, INPUT)  # GPIO 
+wpi.pinMode(EL_ENC2, INPUT)  # GPIO 
+wpi.pinMode(LIMIT_ENC_AZ, INPUT)  # GPIO 
+wpi.pinMode(LIMIT_ENC_EL, INPUT)  # GPIO 
+wpi.pinMode(ANTENNA_INPUT, INPUT)  # GPIO 
 
 
 class Rotation:
@@ -127,6 +146,18 @@ class Rotation:
         self.azReset()
         self.azEnable()
         self.azLeftPWM()
+        
+    
+    
+    
+    # READ FUNCTIONS
+    def readLimEl(self):
+        print("Called function readLimEl()")
+        
+        print("El limit switch returned:")
+        print(wpi.digitalRead(LIMIT_ENC_EL))
+        
+        return 0 # FIXME: I DON'T WANT TO READ TWICE SO GET RID OF PRINT ONCE VERIFIED
 
 
 def main():
