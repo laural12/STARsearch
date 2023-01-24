@@ -4,10 +4,12 @@
 import sys
 import time
 
-path = "/home/odroid/.local/lib/python3.10/site-packages"
+# path = "/home/odroid/.local/lib/python3.10/site-packages"
+path = "/home/laura/.local/lib/python3.8/site-packages"
 sys.path.insert(0, path)
 import odroid_wiringpi as wpi
 
+GUI_TEST = True
 
 INPUT = 0
 OUTPUT = 1
@@ -24,85 +26,112 @@ AZ_RIGHT_PWM = 30
 # FILLER_2 = 25
 
 # input pins
-AZ_ENC1 =
-AZ_ENC2 = 
-EL_ENC1 =
-EL_ENC2 = 
-LIMIT_ENC_AZ =
-LIMIT_ENC_EL =  
-ANTENNA_INPUT = # ???? 
-
-# # Set GPIO numbering mode
-wpi.wiringPiSetupGpio()
-
-# Set pin 22 as an output, and set servo1 as pin 22 as PWM
-wpi.pinMode(EL_ENABLE, OUTPUT)  # CHOOSE NEW PIN: GPIO 24
-wpi.pinMode(EL_LEFT_PWM, OUTPUT)  # GPIO 21
-wpi.pinMode(EL_RIGHT_PWM, OUTPUT)  # GPIO 22
-wpi.pinMode(AZ_ENABLE, OUTPUT)  # GPIO 19
-wpi.pinMode(AZ_LEFT_PWM, OUTPUT)  # GPIO 28
-wpi.pinMode(AZ_RIGHT_PWM, OUTPUT)  # GPIO 30
-# wpi.pinMode(FILLER_1, OUTPUT)  # GPIO 31
-# wpi.pinMode(FILLER_2, OUTPUT)  # CHOOSE NEW PIN: GPIO 25
-
-# Set input pins
-wpi.pinMode(AZ_ENC1, INPUT)  # GPIO 
-wpi.pinMode(AZ_ENC2, INPUT)  # GPIO 
-wpi.pinMode(EL_ENC1, INPUT)  # GPIO 
-wpi.pinMode(EL_ENC2, INPUT)  # GPIO 
-wpi.pinMode(LIMIT_ENC_AZ, INPUT)  # GPIO 
-wpi.pinMode(LIMIT_ENC_EL, INPUT)  # GPIO 
-wpi.pinMode(ANTENNA_INPUT, INPUT)  # GPIO 
+# AZ_ENC1 =
+# AZ_ENC2 =
+# EL_ENC1 =
+# EL_ENC2 =
+# LIMIT_ENC_AZ =
+# LIMIT_ENC_EL =
+# ANTENNA_INPUT = # ????
 
 
 class Rotation:
+    def __init__(self, GUI_test=False):
+        self.GUI_test = GUI_test
+
+        if not self.GUI_test:
+            # Set GPIO numbering mode
+            wpi.wiringPiSetupGpio()
+
+            # Set pin 22 as an output, and set servo1 as pin 22 as PWM
+            wpi.pinMode(EL_ENABLE, OUTPUT)  # CHOOSE NEW PIN: GPIO 24
+            wpi.pinMode(EL_LEFT_PWM, OUTPUT)  # GPIO 21
+            wpi.pinMode(EL_RIGHT_PWM, OUTPUT)  # GPIO 22
+            wpi.pinMode(AZ_ENABLE, OUTPUT)  # GPIO 19
+            wpi.pinMode(AZ_LEFT_PWM, OUTPUT)  # GPIO 28
+            wpi.pinMode(AZ_RIGHT_PWM, OUTPUT)  # GPIO 30
+            # wpi.pinMode(FILLER_1, OUTPUT)  # GPIO 31
+            # wpi.pinMode(FILLER_2, OUTPUT)  # CHOOSE NEW PIN: GPIO 25
+
+            # Set input pins
+            # wpi.pinMode(AZ_ENC1, INPUT)  # GPIO
+            # wpi.pinMode(AZ_ENC2, INPUT)  # GPIO
+            # wpi.pinMode(EL_ENC1, INPUT)  # GPIO
+            # wpi.pinMode(EL_ENC2, INPUT)  # GPIO
+            # wpi.pinMode(LIMIT_ENC_AZ, INPUT)  # GPIO
+            # wpi.pinMode(LIMIT_ENC_EL, INPUT)  # GPIO
+            # wpi.pinMode(ANTENNA_INPUT, INPUT)  # GPIO
+
     def rotate(self):
         #### retract the linear actuator
         print("Called function rotate()")
         # wpi.digitalWrite(EL_LEFT_EN, LOW)
         # wpi.digitalWrite(EL_RIGHT_EN, HIGH)
 
-        wpi.digitalWrite(EL_ENABLE, LOW)  # PWM to move motor
+        # wpi.digitalWrite(EL_ENABLE, LOW)  # PWM to move motor
+        self.write(EL_ENABLE, LOW, GUI_TEST)
+
+    def write(self, pinNum, writeVal):
+        if not self.GUI_test:
+            wpi.digitalWrite(pinNum, writeVal)
+
+    def read(self, pinNum):
+        if not self.GUI_test:
+            return wpi.digitalRead(pinNum)
+        else:
+            return None
 
     def azLeftPWM(self):
         print("Called function azLeftPWM()")
-        wpi.digitalWrite(AZ_LEFT_PWM, HIGH)  # Az left PWM
+        # wpi.digitalWrite(AZ_LEFT_PWM, HIGH)  # Az left PWM
+        self.write(AZ_LEFT_PWM, HIGH)
 
     def azRightPWM(self):
         print("Called function azRightPWM()")
-        wpi.digitalWrite(AZ_RIGHT_PWM, HIGH)  # Az right PWM
+        # wpi.digitalWrite(AZ_RIGHT_PWM, HIGH)  # Az right PWM
+        self.write(AZ_RIGHT_PWM, HIGH)
 
     def elLeftPWM(self):
         print("Called function elLeftPWM()")
-        wpi.digitalWrite(EL_LEFT_PWM, HIGH)  # El left PWM
+        # wpi.digitalWrite(EL_LEFT_PWM, HIGH)  # El left PWM
+        self.write(EL_LEFT_PWM, HIGH)
 
     def elRightPWM(self):
         print("Called function elRightPWM()")
-        wpi.digitalWrite(EL_RIGHT_PWM, HIGH)  # El right PWM
+        # wpi.digitalWrite(EL_RIGHT_PWM, HIGH)  # El right PWM
+        self.write(EL_RIGHT_PWM, HIGH)
 
     def azEnable(self):
         print("Called function azEnable()")
-        wpi.digitalWrite(AZ_ENABLE, HIGH)  # az enable (left and right)
+        # wpi.digitalWrite(AZ_ENABLE, HIGH)  # az enable (left and right)
+        self.write(AZ_ENABLE, HIGH)
 
     def elEnable(self):
         print("Called function elEnable()")
-        wpi.digitalWrite(EL_ENABLE, HIGH)  # El enable
+        # wpi.digitalWrite(EL_ENABLE, HIGH)  # El enable
+        self.write(EL_ENABLE, HIGH)
 
     def azReset(self):
         print("Called function azReset()")
 
         # reset everything
-        wpi.digitalWrite(AZ_ENABLE, LOW)  # az disable
-        wpi.digitalWrite(AZ_LEFT_PWM, LOW)  # Az left disable
-        wpi.digitalWrite(AZ_RIGHT_PWM, LOW)  # Az right disable
+        # wpi.digitalWrite(AZ_ENABLE, LOW)  # az disable
+        # wpi.digitalWrite(AZ_LEFT_PWM, LOW)  # Az left disable
+        # wpi.digitalWrite(AZ_RIGHT_PWM, LOW)  # Az right disable
+        self.write(AZ_ENABLE, LOW)
+        self.write(AZ_LEFT_PWM, LOW)
+        self.write(AZ_RIGHT_PWM, LOW)
 
     def elReset(self):
         print("Called function elReset()")
 
         # reset everything
-        wpi.digitalWrite(EL_ENABLE, LOW)  # el start
-        wpi.digitalWrite(EL_LEFT_PWM, LOW)  # el left disable
-        wpi.digitalWrite(EL_RIGHT_PWM, LOW)  # el right disable
+        # wpi.digitalWrite(EL_ENABLE, LOW)  # el start
+        # wpi.digitalWrite(EL_LEFT_PWM, LOW)  # el left disable
+        # wpi.digitalWrite(EL_RIGHT_PWM, LOW)  # el right disable
+        self.write(EL_ENABLE, LOW)  # el start
+        self.write(EL_LEFT_PWM, LOW)  # el left disable
+        self.write(EL_RIGHT_PWM, LOW)  # el right disable
 
     def elTurnRight(self):
         print("Called function elTurnRight()")
@@ -146,18 +175,15 @@ class Rotation:
         self.azReset()
         self.azEnable()
         self.azLeftPWM()
-        
-    
-    
-    
+
     # READ FUNCTIONS
     def readLimEl(self):
         print("Called function readLimEl()")
-        
+
         print("El limit switch returned:")
-        print(wpi.digitalRead(LIMIT_ENC_EL))
-        
-        return 0 # FIXME: I DON'T WANT TO READ TWICE SO GET RID OF PRINT ONCE VERIFIED
+        # print(self.read(LIMIT_ENC_EL))
+
+        return 0  # FIXME: I DON'T WANT TO READ TWICE SO GET RID OF PRINT ONCE VERIFIED
 
 
 def main():
