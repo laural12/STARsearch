@@ -1,6 +1,8 @@
 # this will ensure the antenna is properly oriented
-import rotation as rot
+from rotation import Rotation
 import time
+
+rot = Rotation(GUI_test = False)
 
 def orientation_init():
   rot.azTurnLeft()
