@@ -16,7 +16,7 @@ matplotlib.use("TkAgg")
 
 import PySimpleGUI as sg
 
-from rotateTest import Rotation
+from rotation import Rotation
 
 sg.theme("DarkBlue12")
 
@@ -33,14 +33,16 @@ def make_window():
         [sg.Button("Az turn left")],
         [sg.Button("Az turn right")],
         [sg.Button("Reset Az")],
-    ]
-
-    midCol = [
         [sg.Text("Elevation")],
         [sg.Button("El turn left")],
         [sg.Button("El turn right")],
         [sg.Button("Reset El")],
-        [sg.Text(key="time")],
+    ]
+
+    midCol = [
+        [sg.Text(key="Az limit switch")],
+        [sg.Text(key="Az ticks")],
+        [sg.Text(key="El ticks")],
     ]
 
     rightCol = [
@@ -131,4 +133,6 @@ while True:
         print("GPIO 30 to high")
         myRotate.write(30, 1)
 
-    window["time"].update(datetime.now().strftime("%H:%M:%S"))
+    window["Az limit switch"].update(f"Az lim: {myRotate.readLimAz()}")
+    window["Az ticks"].update(f"Az ticks: {myRotate.getAzTicks()}")
+    window["El ticks"].update(f"El ticks: {myRotate.getElTicks()}")

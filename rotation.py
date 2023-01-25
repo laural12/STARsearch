@@ -2,7 +2,7 @@
 
 
 import sys
-import time
+from datetime import datetime
 
 # path = "/home/odroid/.local/lib/python3.10/site-packages"
 path = "/home/laura/.local/lib/python3.8/site-packages"
@@ -22,13 +22,11 @@ EL_RIGHT_PWM = 22
 AZ_ENABLE = 19
 AZ_LEFT_PWM = 28
 AZ_RIGHT_PWM = 30
-# FILLER_1 = 31
-# FILLER_2 = 25
 
 # input pins
-# AZ_ENC1 =
+AZ_ENC1 = 31
 # AZ_ENC2 =
-# EL_ENC1 =
+EL_ENC1 = 25
 # EL_ENC2 =
 # LIMIT_ENC_AZ =
 # LIMIT_ENC_EL =
@@ -38,6 +36,8 @@ AZ_RIGHT_PWM = 30
 class Rotation:
     def __init__(self, GUI_test=False):
         self.GUI_test = GUI_test
+        self.azTicks = 0
+        self.elTicks = 0
 
         if not self.GUI_test:
             # Set GPIO numbering mode
@@ -53,11 +53,17 @@ class Rotation:
             # wpi.pinMode(FILLER_1, OUTPUT)  # GPIO 31
             # wpi.pinMode(FILLER_2, OUTPUT)  # CHOOSE NEW PIN: GPIO 25
 
+            wpi.wiringPiISR(AZ_ENC1, wpi.INT_EDGE_BOTH, self.azTickCounter)
+            wpi.wiringPiISR(EL_ENC1, wpi.INT_EDGE_BOTH, self.elTickCounter)
+
             # Set input pins
+
+            # MAYBE DON'T SET THESE? MAYBE WIRINGPIISR DOES THIS ITSELF?
             # wpi.pinMode(AZ_ENC1, INPUT)  # GPIO
             # wpi.pinMode(AZ_ENC2, INPUT)  # GPIO
             # wpi.pinMode(EL_ENC1, INPUT)  # GPIO
             # wpi.pinMode(EL_ENC2, INPUT)  # GPIO
+
             # wpi.pinMode(LIMIT_ENC_AZ, INPUT)  # GPIO
             # wpi.pinMode(LIMIT_ENC_EL, INPUT)  # GPIO
             # wpi.pinMode(ANTENNA_INPUT, INPUT)  # GPIO
@@ -183,7 +189,35 @@ class Rotation:
         print("El limit switch returned:")
         # print(self.read(LIMIT_ENC_EL))
 
-        return 0  # FIXME: I DON'T WANT TO READ TWICE SO GET RID OF PRINT ONCE VERIFIED
+        return datetime.now().strftime(
+            "%H:%M:%S"
+        )  # FIXME: I DON'T WANT TO READ TWICE SO GET RID OF PRINT ONCE VERIFIED
+
+    def readLimAz(self):
+        print("Called function readLimAz()")
+
+        print("Az limit switch returned:")
+        # print(self.read(LIMIT_ENC_Az))
+
+        return datetime.now().strftime(
+            "%H:%M:%S"
+        )  # FIXME: I DON'T WANT TO READ TWICE SO GET RID OF PRINT ONCE VERIFIED
+
+    def azTickCounter(self):
+        self.azTicks += 1
+
+    def elTickCounter(self):
+        self.elTicks += 1
+
+    def getAzTicks(self):
+        return (
+            self.azTicks
+        )  # FIXME: IN THE END WE WANT TO DISPLAY SOMETHING MORE MEANINGFUL
+
+    def getElTicks(self):
+        return (
+            self.elTicks
+        )  # FIXME: IN THE END WE WANT TO DISPLAY SOMETHING MORE MEANINGFUL
 
 
 def main():
