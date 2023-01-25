@@ -17,7 +17,7 @@ def orientation_init():
   
   #set orientation to default orientation
   
-def orientToPoint(antLat, antLong, antElevation, satLat, satLong)
+def orientToPoint(antLat, antLong, antElevation, satLat, satLong):
   #math equation
    
   #if az angle 0-180 turn right
