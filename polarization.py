@@ -5,7 +5,7 @@ class Polarization:
     #?
   
   def readPol():
-    # returns the gain from the feed
+    # returns the gain from the field fox
     
   def orientPol():
     # rotate feed to angle of polarization? is this angle known?
