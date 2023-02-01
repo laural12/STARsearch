@@ -11,15 +11,17 @@ import odroid_wiringpi as wpi
 
 GUI_TEST = True
 
+
 class Singleton(type):
     _instances = {}
+
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
 
 
-class RotationBase():
+class RotationBase:
     INPUT = 0
     OUTPUT = 1
     HIGH = 1
@@ -62,7 +64,7 @@ class RotationBase():
 
             wpi.wiringPiISR(self.AZ_ENC1, wpi.INT_EDGE_BOTH, self.azTickCounter)
             wpi.wiringPiISR(self.EL_ENC1, wpi.INT_EDGE_BOTH, self.elTickCounter)
-            
+
             # wpi.wiringPiISR(LIMIT_ENC_AZ, wpi.INT_EDGE_BOTH, self.azLimitswitchHit)
             # wpi.wiringPiISR(LIMIT_ENC_EL, wpi.INT_EDGE_BOTH, self.elLimitswitchHit)
 
@@ -200,7 +202,7 @@ class RotationBase():
         # print(self.read(LIMIT_ENC_EL))
 
         return datetime.now().strftime(
-           "%H:%M:%S"
+            "%H:%M:%S"
         )  # FIXME: I DON'T WANT TO READ TWICE SO GET RID OF PRINT ONCE VERIFIED
         return self.read(LIMIT_ENC_EL)
 
@@ -210,7 +212,7 @@ class RotationBase():
         # print("Az limit switch returned:")
         # print(self.read(LIMIT_ENC_AZ))
 
-        # return datetime.now().strftime("%H:%M:%S")  
+        # return datetime.now().strftime("%H:%M:%S")
         return self.read(self.LIMIT_ENC_AZ)
 
     def azTickCounter(self):
@@ -232,6 +234,7 @@ class RotationBase():
 
 class Rotation(RotationBase, metaclass=Singleton):
     pass
+
 
 def main():
     myrotate = Rotation()
