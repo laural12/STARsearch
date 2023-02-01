@@ -17,6 +17,8 @@ matplotlib.use("TkAgg")
 import PySimpleGUI as sg
 
 from rotation import Rotation
+from orientation import Orientation
+print("imported orientation")
 
 sg.theme("DarkBlue12")
 
@@ -81,7 +83,9 @@ window = sg.Window("Manual antenna control", make_window(), finalize=True)
 
 
 # Instantiate rotate class
-myRotate = Rotation(GUI_test=True)
+myRotate = Rotation(GUI_test=False)
+orient = Orientation()
+orient.orientation_init()
 
 # CONSIDER CREATING A FUNCTION DICT???
 
