@@ -1,17 +1,17 @@
 
-class Polarization:
+class Signal:
   
   def __init__(self):
     #?
   
-  def readPol():
+  def readSig():
     # returns the gain from the field fox
     
   def orientPol():
     # rotate feed to angle of polarization? is this angle known?
     
-  def findPeakPol():
+  def findPeakSig():
     # moves up/down left/right till polarization reaches max
     
-  def maintainPeakPol():
+  def maintainPeakSig():
     # if gain decreases, rerun findPeakPol
