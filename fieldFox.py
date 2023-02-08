@@ -1,5 +1,5 @@
 
-class Signal:
+class FieldFox:
   
   def __init__(self):
     #?
