@@ -18,6 +18,7 @@ import PySimpleGUI as sg
 
 from rotation import Rotation
 from orientation import Orientation
+from signal import Signal
 print("imported orientation")
 
 sg.theme("DarkBlue12")
@@ -45,6 +46,7 @@ def make_window():
         [sg.Text(key="Az limit switch")],
         [sg.Text(key="Az ticks")],
         [sg.Text(key="El ticks")],
+        [sg.Text(key="FF input")],
     ]
 
     rightCol = [
@@ -86,6 +88,7 @@ window = sg.Window("Manual antenna control", make_window(), finalize=True)
 myRotate = Rotation(GUI_test=False)
 orient = Orientation()
 orient.orientation_init()
+mySignal = Signal()
 
 # CONSIDER CREATING A FUNCTION DICT???
 
@@ -140,3 +143,4 @@ while True:
     window["Az limit switch"].update(f"Az lim: {myRotate.readLimAz()}")
     window["Az ticks"].update(f"Az ticks: {myRotate.getAzTicks()}")
     window["El ticks"].update(f"El ticks: {myRotate.getElTicks()}")
+    window["FF input"].update(f"FF input: {mySignal.readSig()}")
