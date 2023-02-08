@@ -18,7 +18,7 @@ import PySimpleGUI as sg
 
 from rotation import Rotation
 from orientation import Orientation
-from signal import Signal
+from fieldFox import FieldFox
 print("imported orientation")
 
 sg.theme("DarkBlue12")
@@ -88,7 +88,7 @@ window = sg.Window("Manual antenna control", make_window(), finalize=True)
 myRotate = Rotation(GUI_test=False)
 orient = Orientation()
 orient.orientation_init()
-mySignal = Signal()
+mySignal = FieldFox()
 
 # CONSIDER CREATING A FUNCTION DICT???
 
