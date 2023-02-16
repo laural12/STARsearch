@@ -47,14 +47,14 @@ class FieldFox:
 
     return timeList, sigList, azList, elList
     
-  def orientPol():
+  def orientPol(self):
     return
     # rotate feed to angle of polarization? is this angle known?
     
-  def findPeakSig():
+  def findPeakSig(self):
     return
     # moves up/down left/right till polarization reaches max
     
-  def maintainPeakSig():
+  def maintainPeakSig(self):
     return
     # if gain decreases, rerun findPeakPol

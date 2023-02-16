@@ -62,7 +62,7 @@ class RotationBase:
             # wpi.pinMode(FILLER_1, OUTPUT)  # GPIO 31
             # wpi.pinMode(FILLER_2, OUTPUT)  # CHOOSE NEW PIN: GPIO 25
 
-            wpi.wiringPiISR(self.AZ_ENC1, wpi.INT_EDGE_BOTH, self.azTickCounter)
+            wpi.wiringPiISR(self.AZ_ENC1, wpi.INT_EDGE_RISING, self.azTickCounter)
             wpi.wiringPiISR(self.EL_ENC1, wpi.INT_EDGE_BOTH, self.elTickCounter)
 
             # wpi.wiringPiISR(LIMIT_ENC_AZ, wpi.INT_EDGE_BOTH, self.azLimitswitchHit)
@@ -151,8 +151,8 @@ class RotationBase:
         self.write(self.EL_LEFT_PWM, self.LOW)  # el left disable
         self.write(self.EL_RIGHT_PWM, self.LOW)  # el right disable
 
-    def elTurnRight(self):
-        print("Called function elTurnRight()")
+    def elTurnUp(self):
+        print("Called function elTurnUp()")
 
         # wpi.digitalWrite(EL_ENABLE, HIGH)  # el enable
         # wpi.digitalWrite(EL_LEFT_PWM, LOW)  # el set left low
@@ -173,8 +173,8 @@ class RotationBase:
         self.azEnable()
         self.azRightPWM()
 
-    def elTurnLeft(self):
-        print("Called function elTurnLeft()")
+    def elTurnDown(self):
+        print("Called function elTurnDown()")
 
         # wpi.digitalWrite(EL_ENABLE, HIGH)  # el enable
         # wpi.digitalWrite(EL_LEFT_PWM, HIGH)  # el set left high
@@ -204,7 +204,7 @@ class RotationBase:
         return datetime.now().strftime(
             "%H:%M:%S"
         )  # FIXME: I DON'T WANT TO READ TWICE SO GET RID OF PRINT ONCE VERIFIED
-        return self.read(LIMIT_ENC_EL)
+        # return self.read(LIMIT_ENC_EL)
 
     def readLimAz(self):
         # print("Called function readLimAz()")
@@ -216,6 +216,7 @@ class RotationBase:
         return self.read(self.LIMIT_ENC_AZ)
 
     def azTickCounter(self):
+        print("here")
         self.azTicks += 1
 
     def elTickCounter(self):
@@ -223,7 +224,8 @@ class RotationBase:
 
     def getAzTicks(self):
         return (
-            self.azTicks
+            # self.azTicks
+            self.read(self.AZ_ENC1)
         )  # FIXME: IN THE END WE WANT TO DISPLAY SOMETHING MORE MEANINGFUL
 
     def getElTicks(self):

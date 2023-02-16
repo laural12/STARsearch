@@ -37,8 +37,8 @@ def make_window():
         [sg.Button("Az turn right")],
         [sg.Button("Reset Az")],
         [sg.Text("Elevation")],
-        [sg.Button("El turn left")],
-        [sg.Button("El turn right")],
+        [sg.Button("El turn down")],
+        [sg.Button("El turn up")],
         [sg.Button("Reset El")],
     ]
 
@@ -105,12 +105,12 @@ while True:
     elif event == "Az turn right":
         print("Az turn right")
         myRotate.azTurnRight()
-    elif event == "El turn left":
-        print("El turn left")
-        myRotate.elTurnLeft()
-    elif event == "El turn right":
-        print("El turn right")
-        myRotate.elTurnRight()
+    elif event == "El turn down":
+        print("El turn down")
+        myRotate.elTurnDown()
+    elif event == "El turn up":
+        print("El turn up")
+        myRotate.elTurnUp()
     elif event == "Reset Az":
         print("Reset Az")
         myRotate.azReset()
