@@ -8,6 +8,7 @@ path = "/home/odroid/.local/lib/python3.10/site-packages"
 # path = "/home/laura/.local/lib/python3.8/site-packages"
 sys.path.insert(0, path)
 import odroid_wiringpi as wpi
+from AzimuthHallSensors import AzimuthHallSensors
 
 GUI_TEST = True
 
@@ -47,6 +48,8 @@ class RotationBase:
         self.GUI_test = GUI_test
         self.azTicks = 0
         self.elTicks = 0
+        self.currentAz = 0.0
+       
 
         if not self.GUI_test:
             # Set GPIO numbering mode
@@ -61,9 +64,14 @@ class RotationBase:
             wpi.pinMode(self.AZ_RIGHT_PWM, self.OUTPUT)  # GPIO 30
             # wpi.pinMode(FILLER_1, OUTPUT)  # GPIO 31
             # wpi.pinMode(FILLER_2, OUTPUT)  # CHOOSE NEW PIN: GPIO 25
-
-            wpi.wiringPiISR(self.AZ_ENC1, wpi.INT_EDGE_RISING, self.azTickCounter)
-            wpi.wiringPiISR(self.EL_ENC1, wpi.INT_EDGE_BOTH, self.elTickCounter)
+            
+            
+            #print("Setting up Interrupts")
+            #wpi.wiringPiISR(self.AZ_ENC1, wpi.INT_EDGE_BOTH, self.azTickCounter)
+            #wpi.wiringPiISR(self.EL_ENC1, wpi.INT_EDGE_BOTH, self.elTickCounter)
+            self.azHall = AzimuthHallSensors(self.currenAz, self.AZ_ENC1)
+            
+            
 
             # wpi.wiringPiISR(LIMIT_ENC_AZ, wpi.INT_EDGE_BOTH, self.azLimitswitchHit)
             # wpi.wiringPiISR(LIMIT_ENC_EL, wpi.INT_EDGE_BOTH, self.elLimitswitchHit)
@@ -71,7 +79,8 @@ class RotationBase:
             # Set input pins
 
             # MAYBE DON'T SET THESE? MAYBE WIRINGPIISR DOES THIS ITSELF?
-            # wpi.pinMode(self.AZ_ENC1, self.INPUT)  # GPIO
+            #wpi.pinMode(self.AZ_ENC1, self.INPUT)  # GPIO
+            #wpi.pullUpDnControl(self.AZ_ENC1, wpi.PUD_DOWN)
             # wpi.pinMode(self.AZ_ENC2, self.INPUT)  # GPIO
             # wpi.pinMode(self.EL_ENC1, self.INPUT)  # GPIO
             # wpi.pinMode(self.EL_ENC2, self.INPUT)  # GPIO
@@ -168,6 +177,8 @@ class RotationBase:
         # wpi.digitalWrite(AZ_ENABLE, HIGH)  # az enable
         # wpi.digitalWrite(AZ_LEFT_PWM, LOW)  # az set left low
         # wpi.digitalWrite(AZ_RIGHT_PWM, HIGH)  # az set right high
+        
+        self.azHall.set_direction(clockwise = True) 
 
         self.azReset()
         self.azEnable()
@@ -189,6 +200,8 @@ class RotationBase:
         # wpi.digitalWrite(AZ_ENABLE, HIGH)  # az enable
         # wpi.digitalWrite(AZ_LEFT_PWM, HIGH)  # az set left high
         # wpi.digitalWrite(AZ_RIGHT_PWM, LOW)  # az set right low
+        
+        self.azHall.set_direction(clockwise = False)
 
         self.azReset()
         self.azEnable()
@@ -224,14 +237,16 @@ class RotationBase:
 
     def getAzTicks(self):
         return (
-            # self.azTicks
-            self.read(self.AZ_ENC1)
+            self.azTicks
+            #self.read(self.AZ_ENC1)
         )  # FIXME: IN THE END WE WANT TO DISPLAY SOMETHING MORE MEANINGFUL
 
     def getElTicks(self):
         return (
             self.elTicks
         )  # FIXME: IN THE END WE WANT TO DISPLAY SOMETHING MORE MEANINGFUL
+        
+
 
 
 class Rotation(RotationBase, metaclass=Singleton):

@@ -11,8 +11,8 @@ import odroid_wiringpi as wpi
 
 
 class Orientation:
-    az = 0
-    el = 0
+    # az = 0
+    # el = 0
 
     def __init__(self):
         # init variables
@@ -20,7 +20,7 @@ class Orientation:
         self.AZ_LIMIT_ORIENTATION = 200  # this is the orientation at the limit switch
         self.EL_LIMIT_ORIENTATION = 0  # this is the orientation at the limit switch
         self.DEBOUNCE_VAL = (
-            3  # Arbitrary; how many triggers to wait before trusting the limit switch
+            1  # Arbitrary; how many triggers to wait before trusting the limit switch
         )
 
         self.azLimTriggers = 0

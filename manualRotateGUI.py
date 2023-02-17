@@ -18,7 +18,7 @@ import PySimpleGUI as sg
 
 from rotation import Rotation
 from orientation import Orientation
-from fieldFox import FieldFox
+#from fieldFox import FieldFox
 print("imported orientation")
 
 sg.theme("DarkBlue12")
@@ -88,7 +88,7 @@ window = sg.Window("Manual antenna control", make_window(), finalize=True)
 myRotate = Rotation(GUI_test=False)
 orient = Orientation()
 orient.orientation_init()
-mySignal = FieldFox()
+#mySignal = FieldFox()
 
 # CONSIDER CREATING A FUNCTION DICT???
 
@@ -143,4 +143,4 @@ while True:
     window["Az limit switch"].update(f"Az lim: {myRotate.readLimAz()}")
     window["Az ticks"].update(f"Az ticks: {myRotate.getAzTicks()}")
     window["El ticks"].update(f"El ticks: {myRotate.getElTicks()}")
-    window["FF input"].update(f"FF input: {mySignal.readSig()}")
+    #window["FF input"].update(f"FF input: {mySignal.readSig()}")
