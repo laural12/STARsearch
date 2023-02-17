@@ -30,7 +30,7 @@ class Orientation:
 
         # Function setup
         wpi.wiringPiISR(
-            self.rot.LIMIT_ENC_AZ, wpi.INT_EDGE_RISING, self.azLimitswitchHit
+            self.rot.LIMIT_ENC_AZ, wpi.INT_EDGE_BOTH, self.azLimitswitchHit
         )
         # wpi.wiringPiISR(self.rot.LIMIT_ENC_EL, wpi.INT_EDGE_RISING, self.elLimitswitchHit)
 
@@ -50,18 +50,25 @@ class Orientation:
 
     def azLimitswitchHit(self):
         print("Called azLimitswitchHit()")
-        if not self.azOrientDone:  # Don't run this if we aren't in orient init mode
-            self.azLimTriggers += 1
+        #self.azOrientDone = True
+        #self.azLimTriggers = 0
+        self.rot.azReset()
+        Orientation.az = self.AZ_LIMIT_ORIENTATION
+        
+        #if not self.azOrientDone:  # Don't run this if we aren't in orient init mode
+        #    print("Re called limit switch")
+        #    self.azLimTriggers += 1
 
-            if self.azLimTriggers > self.DEBOUNCE_VAL:
-                self.azOrientDone = True
-                self.azLimTriggers = 0
-                self.rot.azReset()
-                Orientation.az = self.AZ_LIMIT_ORIENTATION
+        #    if self.azLimTriggers > self.DEBOUNCE_VAL:
+        #        self.azOrientDone = True
+        #        self.azLimTriggers = 0
+        #        self.rot.azReset()
+        #        Orientation.az = self.AZ_LIMIT_ORIENTATION
 
     def elLimitswitchHit(self):
         print("Called elLimitswitchHit()")
         if not self.elOrientDone:  # Don't run this if we aren't in orient init mode
+            print("Re called limit switch")
             self.elLimTriggers += 1
 
             if self.elLimTriggers > self.DEBOUNCE_VAL:

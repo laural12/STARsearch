@@ -33,7 +33,7 @@ class RotationBase:
     EL_RIGHT_PWM = 22
     AZ_ENABLE = 19
     AZ_LEFT_PWM = 28
-    AZ_RIGHT_PWM = 30
+    AZ_RIGHT_PWM = 30       
 
     # input pins
     AZ_ENC1 = 31
@@ -48,7 +48,7 @@ class RotationBase:
         self.GUI_test = GUI_test
         self.azTicks = 0
         self.elTicks = 0
-        self.currentAz = 0.0
+        self.initialAz = 0.0
        
 
         if not self.GUI_test:
@@ -69,7 +69,7 @@ class RotationBase:
             #print("Setting up Interrupts")
             #wpi.wiringPiISR(self.AZ_ENC1, wpi.INT_EDGE_BOTH, self.azTickCounter)
             #wpi.wiringPiISR(self.EL_ENC1, wpi.INT_EDGE_BOTH, self.elTickCounter)
-            self.azHall = AzimuthHallSensors(self.currenAz, self.AZ_ENC1)
+            self.azHall = AzimuthHallSensors(self.initialAz, self.AZ_ENC1)
             
             
 
@@ -83,7 +83,7 @@ class RotationBase:
             #wpi.pullUpDnControl(self.AZ_ENC1, wpi.PUD_DOWN)
             # wpi.pinMode(self.AZ_ENC2, self.INPUT)  # GPIO
             # wpi.pinMode(self.EL_ENC1, self.INPUT)  # GPIO
-            # wpi.pinMode(self.EL_ENC2, self.INPUT)  # GPIO
+            # wpi.piTruenMode(self.EL_ENC2, self.INPUT)  # GPIO
 
             # wpi.pinMode(self.LIMIT_ENC_AZ, self.INPUT)  # GPIO
             # wpi.pinMode(self.LIMIT_ENC_EL, self.INPUT)  # GPIO
@@ -169,7 +169,7 @@ class RotationBase:
 
         self.elReset()
         self.elEnable()
-        self.elRightPWM()
+        self.elLeftPWM()
 
     def azTurnRight(self):
         print("Called function azTurnRight()")
@@ -192,7 +192,7 @@ class RotationBase:
         # wpi.digitalWrite(EL_RIGHT_PWM, LOW)  # el set right low
         self.elReset()
         self.elEnable()
-        self.elLeftPWM()
+        self.elRightPWM()
 
     def azTurnLeft(self):
         print("Called function azTurnLeft()")
