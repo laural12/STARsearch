@@ -15,7 +15,7 @@ class AzimuthHallSensors:
     az = 0.0 #stores current azimuth in degrees
     currentHallValue = 0
     previousHallValue = 0
-    checkingFrequency = 200.0 #Hz
+    checkingFrequency = 200 #Hz
     pinNum = 31
     movingClockwise = True
     degreesPerEdgeSingleSensor = 360.0/(575.0 * 80.0 * 4.0) #Degrees per edge in a single sensor

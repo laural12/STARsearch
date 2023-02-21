@@ -44,8 +44,8 @@ def make_window():
 
     midCol = [
         [sg.Text(key="Az limit switch")],
-        [sg.Text(key="Az ticks")],
-        [sg.Text(key="El ticks")],
+        [sg.Text(key="Az Angle")],
+        [sg.Text(key="El Angle")],
         [sg.Text(key="FF input")],
     ]
 
@@ -141,6 +141,8 @@ while True:
         myRotate.write(30, 1)
 
     window["Az limit switch"].update(f"Az lim: {myRotate.readLimAz()}")
-    window["Az ticks"].update(f"Az ticks: {myRotate.getAzTicks()}")
-    window["El ticks"].update(f"El ticks: {myRotate.getElTicks()}")
+    window["El Angle"].update(f"El Angle: {myRotate.getElAngle()}")
+    window["Az Angle"].update(f"Az Angle: {myRotate.getAzAngle()}")
+    #window["Az ticks"].update(f"Az ticks: {myRotate.getAzTicks()}")
+    #window["El ticks"].update(f"El ticks: {myRotate.getElTicks()}")
     #window["FF input"].update(f"FF input: {mySignal.readSig()}")

@@ -9,6 +9,7 @@ path = "/home/odroid/.local/lib/python3.10/site-packages"
 sys.path.insert(0, path)
 import odroid_wiringpi as wpi
 from AzimuthHallSensors import AzimuthHallSensors
+from ElevationHallSensors import ElevationHallSensors
 
 GUI_TEST = True
 
@@ -49,6 +50,7 @@ class RotationBase:
         self.azTicks = 0
         self.elTicks = 0
         self.initialAz = 0.0
+        self.initialEl = 0.0
        
 
         if not self.GUI_test:
@@ -70,7 +72,7 @@ class RotationBase:
             #wpi.wiringPiISR(self.AZ_ENC1, wpi.INT_EDGE_BOTH, self.azTickCounter)
             #wpi.wiringPiISR(self.EL_ENC1, wpi.INT_EDGE_BOTH, self.elTickCounter)
             self.azHall = AzimuthHallSensors(self.initialAz, self.AZ_ENC1)
-            
+            self.elHall = ElevationHallSensors(self.initialEl, self.EL_ENC1)
             
 
             # wpi.wiringPiISR(LIMIT_ENC_AZ, wpi.INT_EDGE_BOTH, self.azLimitswitchHit)
@@ -166,10 +168,13 @@ class RotationBase:
         # wpi.digitalWrite(EL_ENABLE, HIGH)  # el enable
         # wpi.digitalWrite(EL_LEFT_PWM, LOW)  # el set left low
         # wpi.digitalWrite(EL_RIGHT_PWM, HIGH)  # el set right high
-
+        
+        self.elHall.set_direction(raising = True)
+        
         self.elReset()
         self.elEnable()
         self.elLeftPWM()
+        #self.elRightPWM()
 
     def azTurnRight(self):
         print("Called function azTurnRight()")
@@ -190,6 +195,9 @@ class RotationBase:
         # wpi.digitalWrite(EL_ENABLE, HIGH)  # el enable
         # wpi.digitalWrite(EL_LEFT_PWM, HIGH)  # el set left high
         # wpi.digitalWrite(EL_RIGHT_PWM, LOW)  # el set right low
+        
+        self.elHall.set_direction(raising = False)
+        
         self.elReset()
         self.elEnable()
         self.elRightPWM()
@@ -235,15 +243,15 @@ class RotationBase:
     def elTickCounter(self):
         self.elTicks += 1
 
-    def getAzTicks(self):
+    def getAzAngle(self):
         return (
-            self.azTicks
+            self.azHall.get_azimuth()
             #self.read(self.AZ_ENC1)
         )  # FIXME: IN THE END WE WANT TO DISPLAY SOMETHING MORE MEANINGFUL
 
-    def getElTicks(self):
+    def getElAngle(self):
         return (
-            self.elTicks
+            self.elHall.get_elevation_angle()
         )  # FIXME: IN THE END WE WANT TO DISPLAY SOMETHING MORE MEANINGFUL
         
 

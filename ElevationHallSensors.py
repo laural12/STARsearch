@@ -50,9 +50,9 @@ class ElevationHallSensors:
             self.currentHallValue = wpi.digitalRead(self.pinNum)
             if (self.previousHallValue != self.currentHallValue):
                 if (self.raising):
-                    self.a += self.inchesPerEdge
-                else:
                     self.a -= self.inchesPerEdge
+                else:
+                    self.a += self.inchesPerEdge
             time.sleep(1.0/self.checkingFrequency)
     
     def get_elevation_angle(self):
@@ -73,3 +73,6 @@ class ElevationHallSensors:
         ARequired = 90 - EDesired - self.F + self.D
         aRequired = np.sqrt(self.b**2 + self.c**2 - 2.0*self.b*self.c*np.cos(np.pi/180.*ARequired))
         return aRequired
+        
+    def set_direction(self, raising):
+        self.raising = raising
