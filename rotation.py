@@ -29,10 +29,8 @@ class RotationBase:
     HIGH = 1
     LOW = 0
 
-    EL_ENABLE = 24
-    EL_LEFT_PWM = 21
-    EL_RIGHT_PWM = 22
-    AZ_ENABLE = 19
+    EL_LEFT_PWM = 21 # UP
+    EL_RIGHT_PWM = 22 # DOWN
     AZ_LEFT_PWM = 28
     AZ_RIGHT_PWM = 30       
 
@@ -42,8 +40,9 @@ class RotationBase:
     EL_ENC1 = 25
     # EL_ENC2 =
     LIMIT_ENC_AZ = 29
-    # LIMIT_ENC_EL =
-    # ANTENNA_INPUT = # ????
+    LIMIT_ENC_EL = 24
+    POL_LEFT_PWM = 19
+    POL_RIGHT_PWM = 18
 
     def __init__(self, GUI_test=False):
         self.GUI_test = GUI_test
@@ -147,7 +146,7 @@ class RotationBase:
         # wpi.digitalWrite(AZ_ENABLE, LOW)  # az disable
         # wpi.digitalWrite(AZ_LEFT_PWM, LOW)  # Az left disable
         # wpi.digitalWrite(AZ_RIGHT_PWM, LOW)  # Az right disable
-        self.write(self.AZ_ENABLE, self.LOW)
+        #self.write(self.AZ_ENABLE, self.LOW)
         self.write(self.AZ_LEFT_PWM, self.LOW)
         self.write(self.AZ_RIGHT_PWM, self.LOW)
 
@@ -158,7 +157,7 @@ class RotationBase:
         # wpi.digitalWrite(EL_ENABLE, LOW)  # el start
         # wpi.digitalWrite(EL_LEFT_PWM, LOW)  # el left disable
         # wpi.digitalWrite(EL_RIGHT_PWM, LOW)  # el right disable
-        self.write(self.EL_ENABLE, self.LOW)  # el start
+        #self.write(self.EL_ENABLE, self.LOW)  # el start
         self.write(self.EL_LEFT_PWM, self.LOW)  # el left disable
         self.write(self.EL_RIGHT_PWM, self.LOW)  # el right disable
 
@@ -186,7 +185,7 @@ class RotationBase:
         self.azHall.set_direction(clockwise = True) 
 
         self.azReset()
-        self.azEnable()
+        #self.azEnable()
         self.azRightPWM()
 
     def elTurnDown(self):
@@ -199,7 +198,7 @@ class RotationBase:
         self.elHall.set_direction(raising = False)
         
         self.elReset()
-        self.elEnable()
+        #self.elEnable()
         self.elRightPWM()
 
     def azTurnLeft(self):
@@ -212,7 +211,7 @@ class RotationBase:
         self.azHall.set_direction(clockwise = False)
 
         self.azReset()
-        self.azEnable()
+        #self.azEnable()
         self.azLeftPWM()
 
     # READ FUNCTIONS
