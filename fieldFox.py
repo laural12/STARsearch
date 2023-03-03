@@ -8,6 +8,7 @@ class FieldFox:
     self.sigStrength = Queue(maxSize = 200)
     self.az = Queue(maxsize = 200)
     self.el = Queue(maxsize = 200)
+    self.oldSig = 0
 
     #?
   
@@ -50,10 +51,16 @@ class FieldFox:
   def orientPol(self):
     return
     # rotate feed to angle of polarization? is this angle known?
-    
-  def findPeakSig(self):
-    return
-    # moves up/down left/right till polarization reaches max
+ 
+#returns true if the signal has increased, false if not
+  def checkIfSigIncrease(self):
+    newSig = self.readSig()
+    if(newSig > self.oldSig):
+      self.oldsig = newSig
+      return true
+    else:
+      self.oldsig = newSig
+      return false
     
   def maintainPeakSig(self):
     return
