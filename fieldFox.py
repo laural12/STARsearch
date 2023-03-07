@@ -49,6 +49,25 @@ class FieldFox:
     return timeList, sigList, azList, elList
     
   def orientPol(self):
+    self.oldSig = self.readSig()
+    #rotate cw
+    newSig = self.readSig()
+    if(newSig > self.oldSig):
+      while(newSig > self.oldSig):
+        self.oldSig = newSig
+        #rotate cw
+        newSig = self.readSig()
+        return true
+    else if(newSig < self.oldSig):
+      while(newSig < self.oldSig):
+        self.oldSig = newSig
+        #rotate ccw
+        newSig = self.readSig()
+        return true
+    else:
+      return true
+
+    
     return
     # rotate feed to angle of polarization? is this angle known?
  
@@ -56,10 +75,10 @@ class FieldFox:
   def checkIfSigIncrease(self):
     newSig = self.readSig()
     if(newSig > self.oldSig):
-      self.oldsig = newSig
+      self.oldSig = newSig
       return true
     else:
-      self.oldsig = newSig
+      self.oldSig = newSig
       return false
     
   def maintainPeakSig(self):
