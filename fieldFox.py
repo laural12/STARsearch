@@ -67,8 +67,36 @@ class FieldFox:
         return timeList, sigList, azList, elList
 
     def orientPol(self):
+        self.oldSig = self.readSig()
+        # rotate cw
+        newSig = self.readSig()
+        if newSig > self.oldSig:
+            while newSig > self.oldSig:
+                self.oldSig = newSig
+                # rotate cw
+                newSig = self.readSig()
+                return True
+        elif newSig < self.oldSig:
+            while newSig < self.oldSig:
+                self.oldSig = newSig
+                # rotate ccw
+                newSig = self.readSig()
+                return True
+        else:
+            return True
+
         return
         # rotate feed to angle of polarization? is this angle known?
+
+    # returns true if the signal has increased, false if not
+    def checkIfSigIncrease(self):
+        newSig = self.readSig()
+        if newSig > self.oldSig:
+            self.oldSig = newSig
+            return True
+        else:
+            self.oldSig = newSig
+            return False
 
     def findPeakSig(self):
         # Maximize power over azimuth
