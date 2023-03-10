@@ -57,10 +57,10 @@ class RotationBase:
             wpi.wiringPiSetupGpio()
 
             # Set pin 22 as an output, and set servo1 as pin 22 as PWM
-            wpi.pinMode(self.EL_ENABLE, self.OUTPUT)  # CHOOSE NEW PIN: GPIO 24
+            # wpi.pinMode(self.EL_ENABLE, self.OUTPUT)  # CHOOSE NEW PIN: GPIO 24
             wpi.pinMode(self.EL_LEFT_PWM, self.OUTPUT)  # GPIO 21
             wpi.pinMode(self.EL_RIGHT_PWM, self.OUTPUT)  # GPIO 22
-            wpi.pinMode(self.AZ_ENABLE, self.OUTPUT)  # GPIO 19
+            # wpi.pinMode(self.AZ_ENABLE, self.OUTPUT)  # GPIO 19
             wpi.pinMode(self.AZ_LEFT_PWM, self.OUTPUT)  # GPIO 28
             wpi.pinMode(self.AZ_RIGHT_PWM, self.OUTPUT)  # GPIO 30
             # wpi.pinMode(FILLER_1, OUTPUT)  # GPIO 31
@@ -97,7 +97,7 @@ class RotationBase:
         # wpi.digitalWrite(self.EL_RIGHT_EN, self.HIGH)
 
         # wpi.digitalWrite(self.EL_ENABLE, self.LOW)  # PWM to move motor
-        self.write(self.EL_ENABLE, self.LOW)
+        #self.write(self.EL_ENABLE, self.LOW)
 
     def write(self, pinNum, writeVal):
         if not self.GUI_test:
@@ -132,12 +132,12 @@ class RotationBase:
     def azEnable(self):
         print("Called function azEnable()")
         # wpi.digitalWrite(AZ_ENABLE, HIGH)  # az enable (left and right)
-        self.write(self.AZ_ENABLE, self.HIGH)
+        # self.write(self.AZ_ENABLE, self.HIGH)
 
     def elEnable(self):
         print("Called function elEnable()")
         # wpi.digitalWrite(EL_ENABLE, HIGH)  # El enable
-        self.write(self.EL_ENABLE, self.HIGH)
+        # self.write(self.EL_ENABLE, self.HIGH)
 
     def azReset(self):
         print("Called function azReset()")
