@@ -19,6 +19,9 @@ def autoFind(azDesired,elDesired,myRotation):
 
     #Control Loop
     while (abs(azError) > azTolerance or abs(elError) > elTolerance):
+        print("Angles")
+        print(myRotation.getAzAngle())
+        print(myRotation.getElAngle())
         if (myRotation.getAzAngle() > azDesired+azTolerance):
             #turn counterclockwise
             myRotation.azTurnLeft()
