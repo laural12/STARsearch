@@ -19,19 +19,34 @@ class FieldFox:
         self.powerLevel = 0.0
         self.alpha = 0.9
 
-        self.elWindow = 5.0  # degrees
-        self.azWindow = 5.0  # degrees
+        self.elWindow = 1.0  # degrees
+        self.azWindow = 1.0  # degrees
 
-        self.ip = "10.32.114.148"
+        self.ip = "192.168.0.1"  # This is a static ip, so it shouldn't change
 
         rm = pyvisa.ResourceManager()
         self.inst = rm.open_resource(f"TCPIP0::{self.ip}::inst0:INSTR")
 
-        # ?
+        # Set center freq
+        self.inst.write("FREQ:CENT 1.185e9")
+        # Set iBW to be within 100kHz (narrow bandwidth)
+        self.inst.write("SENS:CME:IBW 100e3")
+        # Set up to measure Channel Power
+        self.inst.write("SENS:MEAS:CHAN CHP")
 
     def readSig(self):
-        # return 0
-        print(self.inst.query("*IDN?"))
+        print("Reading channel power")
+        # print(self.inst.query("*IDN?"))
+
+        # NOTE: DOES THIS LINE NEED ERROR HANDLING? WILL IT EVER NOT GET THE EXPECTED VALUES?
+        power, psd = self.inst.query(
+            "CALC:MEAS:DATA?"
+        )  # This is the command that actually gives you info. Gives power, then PSD, in dB
+
+        print("power:", power)
+        print("psd:", psd)
+
+        return power
 
     def sigMakeQsAndLists(self):
         # has a queue of time and signal data
@@ -66,26 +81,41 @@ class FieldFox:
 
         return timeList, sigList, azList, elList
 
-    def orientPol(self):
-        self.oldSig = self.readSig()
-        # rotate cw
-        newSig = self.readSig()
-        if newSig > self.oldSig:
-            while newSig > self.oldSig:
-                self.oldSig = newSig
-                # rotate cw
-                newSig = self.readSig()
-                return True
-        elif newSig < self.oldSig:
-            while newSig < self.oldSig:
-                self.oldSig = newSig
-                # rotate ccw
-                newSig = self.readSig()
-                return True
+    def orientPol(self, expectedPol):
+        # ----------------- This section only uses math -----------------------------
+        if self.myRotate.getPolAngle() > expectedPol:
+            self.myRotate.polTurnLeft()
+            while self.myRotate.getPolAngle() > expectedPol:
+                time.sleep(
+                    0.01
+                )  # Change the time sleeping to increase resolution. Replace with "pass" for best resolution
         else:
-            return True
+            self.myRotate.polTurnRight()
+            while self.myRotate.getPolAngle() < expectedPol:
+                time.sleep(
+                    0.01
+                )  # Change the time sleeping to increase resolution. Replace with "pass" for best resolution
+        # ---------------------------------------------------------------------------
 
-        return
+        # self.oldSig = self.readSig()
+        # # rotate cw
+        # newSig = self.readSig()
+        # if newSig > self.oldSig:
+        #     while newSig > self.oldSig:
+        #         self.oldSig = newSig
+        #         # rotate cw
+        #         newSig = self.readSig()
+        #         return True
+        # elif newSig < self.oldSig:
+        #     while newSig < self.oldSig:
+        #         self.oldSig = newSig
+        #         # rotate ccw
+        #         newSig = self.readSig()
+        #         return True
+        # else:
+        #     return True
+
+        # return
         # rotate feed to angle of polarization? is this angle known?
 
     # returns true if the signal has increased, false if not
@@ -135,7 +165,9 @@ class FieldFox:
         bestAz = azAngles[np.argmax(pwrLevels)]
         self.myRotate.azTurnRight()
         while self.myRotate.getAzAngle() < bestAz:
-            time.sleep(0.001)
+            time.sleep(
+                0.001
+            )  # 0.5*(1/64) = .0078 second resolution on the azimuth hall sensors
         self.myRotate.azReset()
 
         # Now maximize power over elevation
@@ -173,7 +205,9 @@ class FieldFox:
         bestEl = elAngles[np.argmax(pwrLevels)]
         self.myRotate.elTurnUp()
         while self.myRotate.getElAngle() < bestEl:
-            time.sleep(0.001)
+            time.sleep(
+                0.001
+            )  # 0.5*(1/184) = .0027 second resolution on the elevation hall sensors
         self.myRotate.elReset()
 
     def maintainPeakSig(self):
