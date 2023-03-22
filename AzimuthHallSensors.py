@@ -14,7 +14,7 @@ class AzimuthHallSensors:
 
     atLim = 133.0 # azimuth degrees when hitting limit switch
     az = 0.0 #stores current azimuth in degrees
-    currentHallValue = 0
+    currentHallValue = 150.0
     previousHallValue = 0
     checkingFrequency = 200 #Hz
     pinNum = 31
