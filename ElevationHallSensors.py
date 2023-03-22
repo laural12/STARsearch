@@ -12,15 +12,15 @@ import odroid_wiringpi as wpi
 class ElevationHallSensors:
 
     a = 0. #Current length of a in inches
-    a0 = 30 #length of a at E=0 degrees (Wrong)
-    b = 24.75 #measured length of b
-    c = 20.5 #measured length of c
+    b = 24.67 #measured length of b
+    c = 20.65 #measured length of c
     A = 0. #Current angle A in degrees
     ADesired = 0. #Desired angle A in degrees
-    D = 0. #measured angle of D in degrees
+    DminusF = 4.73
+    #D = 0. #measured angle of D in degrees
     E = 0. #current elevation angle in degrees
     EDesired = 0. #desired angle of elevation in degrees
-    F = 0. #measured angle F in degrees
+    #F = 0. #measured angle F in degrees
 
     raising = True
     currentHallValue = 0
@@ -34,7 +34,7 @@ class ElevationHallSensors:
         
         #Calculate initial values
         self.E = EInitial
-        self.A = 90 - EInitial - self.F + self.D
+        self.A = 90 - EInitial + self.DminusF
         self.a = np.sqrt(self.b**2 + self.c**2 - 2*self.b*self.c*np.cos(np.pi/180.*self.A))
 
         self.pinNum = pinNum
@@ -64,13 +64,13 @@ class ElevationHallSensors:
     
     def calculate_E(self):
         self.calculate_A()
-        self.E = 90 - self.F - self.A + self.D
+        self.E = 90 - self.A + self.DminusF
     
     def calculate_A(self):
         self.A = 180.0/np.pi * np.arccos((self.a**2-self.b**2-self.c**2)/(-2*self.b*self.c))
     
     def find_required_a(self, EDesired):
-        ARequired = 90 - EDesired - self.F + self.D
+        ARequired = 90 - EDesired + self.DminusF
         aRequired = np.sqrt(self.b**2 + self.c**2 - 2.0*self.b*self.c*np.cos(np.pi/180.*ARequired))
         return aRequired
         
