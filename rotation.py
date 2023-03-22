@@ -48,7 +48,7 @@ class RotationBase:
         self.GUI_test = GUI_test
         self.azTicks = 0
         self.elTicks = 0
-        self.initialAz = 0.0
+        self.initialAz = 150.0
         self.initialEl = 0.0
        
 
