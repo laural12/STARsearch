@@ -29,9 +29,9 @@ class Orientation:
         self.elOrientDone = True
 
         # Function setup
-        wpi.wiringPiISR(
-            self.rot.LIMIT_ENC_AZ, wpi.INT_EDGE_BOTH, self.azLimitswitchHit
-        )
+        #wpi.wiringPiISR(
+        #    self.rot.LIMIT_ENC_AZ, wpi.INT_EDGE_BOTH, self.azLimitswitchHit
+        #)
         # wpi.wiringPiISR(self.rot.LIMIT_ENC_EL, wpi.INT_EDGE_RISING, self.elLimitswitchHit)
 
     def orientation_init(self):
