@@ -16,31 +16,42 @@ def autoFind(azDesired,elDesired,myRotation):
     #Calculate Errors
     azError = float(myRotation.getAzAngle()) - azDesired
     elError = float(myRotation.getElAngle()) - elDesired
+    
+    
+    try:
 
-    #Control Loop
-    while (abs(azError) > azTolerance or abs(elError) > elTolerance):
-        print("Angles")
-        print(myRotation.getAzAngle())
-        print(myRotation.getElAngle())
-        if (myRotation.getAzAngle() > azDesired+azTolerance):
-            #turn counterclockwise
-            myRotation.azTurnLeft()
-        elif (myRotation.getAzAngle() < azDesired-azTolerance):
-            #turn clockwise
-            myRotation.azTurnRight()
+        #Control Loop
+        while (abs(azError) > azTolerance or abs(elError) > elTolerance):
+            print("Angles")
+            print(myRotation.getAzAngle())
+            print(myRotation.getElAngle())
+            if (myRotation.getAzAngle() > azDesired+azTolerance):
+                #turn counterclockwise
+                myRotation.azTurnLeft()
+            elif (myRotation.getAzAngle() < azDesired-azTolerance):
+                #turn clockwise
+                myRotation.azTurnRight()
+            else:
+                myRotation.azReset()
 
-        if (myRotation.getElAngle() > elDesired + elTolerance):
-            #extend actuator / Lower Elevation
-            myRotation.elTurnUp()
-        elif (myRotation.getElAngle() > elDesired + elTolerance):
-            #retract actuator / Raise Elevation
-            myRotation.elTurnDown()
+            if (myRotation.getElAngle() < elDesired - elTolerance):
+                #extend actuator / Lower Elevation
+                myRotation.elTurnUp()
+            elif (myRotation.getElAngle() > elDesired + elTolerance):
+                #retract actuator / Raise Elevation
+                myRotation.elTurnDown()
+            else:
+                myRotation.elReset()
 
-        #recalculate errors
-        azError = float(myRotation.getAzAngle()) - azDesired
-        elError = float(myRotation.getElAngle()) - elDesired
+            #recalculate errors
+            azError = float(myRotation.getAzAngle()) - azDesired
+            elError = float(myRotation.getElAngle()) - elDesired
+            
+        myRotation.azReset()
+        myRotation.elReset()
         
-    myRotation.azReset()
-    myRotation.elReset()
+    except KeyboardInterrupt:
+        myRotation.azReset()
+        myRotation.elReset()
 
 autoFind(azDes, elDes, myRotation)
