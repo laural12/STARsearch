@@ -29,6 +29,11 @@ class RotationBase:
     HIGH = 1
     LOW = 0
 
+    maxAngle = 360.0 #Unknown needs calibration
+    maxVoltage = 1.8 #Assumed
+    polDegreesPerVolt = maxAngle/maxVoltage
+    VoltsPerADCVal = 1.8/(2**10 - 1) # about 0.00176V/ADC
+
     EL_LEFT_PWM = 21 # UP
     EL_RIGHT_PWM = 22 # DOWN
     AZ_LEFT_PWM = 28
@@ -43,6 +48,7 @@ class RotationBase:
     LIMIT_ENC_EL = 24
     POL_LEFT_PWM = 19
     POL_RIGHT_PWM = 18
+    POL_POTENTIOMETER = 0 #AIN0 ???????
 
     def __init__(self, GUI_test=False):
         self.GUI_test = GUI_test
@@ -56,48 +62,23 @@ class RotationBase:
             # Set GPIO numbering mode
             wpi.wiringPiSetupGpio()
 
-            # Set pin 22 as an output, and set servo1 as pin 22 as PWM
-            # wpi.pinMode(self.EL_ENABLE, self.OUTPUT)  # CHOOSE NEW PIN: GPIO 24
+            #Set output pins
             wpi.pinMode(self.EL_LEFT_PWM, self.OUTPUT)  # GPIO 21
             wpi.pinMode(self.EL_RIGHT_PWM, self.OUTPUT)  # GPIO 22
-            # wpi.pinMode(self.AZ_ENABLE, self.OUTPUT)  # GPIO 19
             wpi.pinMode(self.AZ_LEFT_PWM, self.OUTPUT)  # GPIO 28
             wpi.pinMode(self.AZ_RIGHT_PWM, self.OUTPUT)  # GPIO 30
-            # wpi.pinMode(FILLER_1, OUTPUT)  # GPIO 31
-            # wpi.pinMode(FILLER_2, OUTPUT)  # CHOOSE NEW PIN: GPIO 25
+            wpi.pinMode(self.POL_LEFT_PWM, self.OUTPUT)  # GPIO 19
+            wpi.pinMode(self.POL_RIGHT_PWM, self.OUTPUT)  # GPIO 18
             
-            
-            #print("Setting up Interrupts")
-            #wpi.wiringPiISR(self.AZ_ENC1, wpi.INT_EDGE_BOTH, self.azTickCounter)
-            #wpi.wiringPiISR(self.EL_ENC1, wpi.INT_EDGE_BOTH, self.elTickCounter)
+            #Initializing Hall Sensors
             self.azHall = AzimuthHallSensors(self.initialAz, self.AZ_ENC1)
             self.elHall = ElevationHallSensors(self.initialEl, self.EL_ENC1)
-            
 
-            # wpi.wiringPiISR(LIMIT_ENC_AZ, wpi.INT_EDGE_BOTH, self.azLimitswitchHit)
-            # wpi.wiringPiISR(LIMIT_ENC_EL, wpi.INT_EDGE_BOTH, self.elLimitswitchHit)
 
-            # Set input pins
-
-            # MAYBE DON'T SET THESE? MAYBE WIRINGPIISR DOES THIS ITSELF?
-            #wpi.pinMode(self.AZ_ENC1, self.INPUT)  # GPIO
-            #wpi.pullUpDnControl(self.AZ_ENC1, wpi.PUD_DOWN)
-            # wpi.pinMode(self.AZ_ENC2, self.INPUT)  # GPIO
-            # wpi.pinMode(self.EL_ENC1, self.INPUT)  # GPIO
-            # wpi.piTruenMode(self.EL_ENC2, self.INPUT)  # GPIO
-
-            # wpi.pinMode(self.LIMIT_ENC_AZ, self.INPUT)  # GPIO
-            # wpi.pinMode(self.LIMIT_ENC_EL, self.INPUT)  # GPIO
-            # wpi.pinMode(self.ANTENNA_INPUT, self.INPUT)  # GPIO
-
-    def rotate(self):
-        #### retract the linear actuator
-        print("Called function rotate()")
-        # wpi.digitalWrite(self.EL_LEFT_EN, self.LOW)
-        # wpi.digitalWrite(self.EL_RIGHT_EN, self.HIGH)
-
-        # wpi.digitalWrite(self.EL_ENABLE, self.LOW)  # PWM to move motor
-        #self.write(self.EL_ENABLE, self.LOW)
+    def initialize_orientation(self):
+        print("Called function initialize_orientation()")
+        self.azTurnLeft()
+        while ()
 
     def write(self, pinNum, writeVal):
         if not self.GUI_test:
@@ -128,16 +109,6 @@ class RotationBase:
         print("Called function elRightPWM()")
         # wpi.digitalWrite(EL_RIGHT_PWM, HIGH)  # El right PWM
         self.write(self.EL_RIGHT_PWM, self.HIGH)
-
-    def azEnable(self):
-        print("Called function azEnable()")
-        # wpi.digitalWrite(AZ_ENABLE, HIGH)  # az enable (left and right)
-        # self.write(self.AZ_ENABLE, self.HIGH)
-
-    def elEnable(self):
-        print("Called function elEnable()")
-        # wpi.digitalWrite(EL_ENABLE, HIGH)  # El enable
-        # self.write(self.EL_ENABLE, self.HIGH)
 
     def azReset(self):
         print("Called function azReset()")
@@ -175,51 +146,46 @@ class RotationBase:
         self.elLeftPWM()
         #self.elRightPWM()
 
-    def azTurnRight(self):
-        print("Called function azTurnRight()")
-
-        # wpi.digitalWrite(AZ_ENABLE, HIGH)  # az enable
-        # wpi.digitalWrite(AZ_LEFT_PWM, LOW)  # az set left low
-        # wpi.digitalWrite(AZ_RIGHT_PWM, HIGH)  # az set right high
-        
-        self.azHall.set_direction(clockwise = True) 
-
-        self.azReset()
-        #self.azEnable()
-        self.azRightPWM()
-
     def elTurnDown(self):
         print("Called function elTurnDown()")
-
-        # wpi.digitalWrite(EL_ENABLE, HIGH)  # el enable
-        # wpi.digitalWrite(EL_LEFT_PWM, HIGH)  # el set left high
-        # wpi.digitalWrite(EL_RIGHT_PWM, LOW)  # el set right low
-        
         self.elHall.set_direction(raising = False)
-        
         self.elReset()
-        #self.elEnable()
         self.elRightPWM()
+
+
+    def azTurnRight(self):
+        print("Called function azTurnRight()")        
+        self.azHall.set_direction(clockwise = True) 
+        self.azReset()
+        self.azRightPWM()
 
     def azTurnLeft(self):
         print("Called function azTurnLeft()")
-
-        # wpi.digitalWrite(AZ_ENABLE, HIGH)  # az enable
-        # wpi.digitalWrite(AZ_LEFT_PWM, HIGH)  # az set left high
-        # wpi.digitalWrite(AZ_RIGHT_PWM, LOW)  # az set right low
-        
         self.azHall.set_direction(clockwise = False)
-
         self.azReset()
-        #self.azEnable()
         self.azLeftPWM()
+
+    def polReset(self):
+        print("Called function polReset()")
+
+        self.write(self.POL_LEFT_PWM, self.LOW)  # el left disable
+        self.write(self.POL_RIGHT_PWM, self.LOW)  # el right disable
+
+    def polTurnRight(self):
+        print("Called function polTurnRight()")
+        self.polReset()
+        self.write(self.POL_RIGHT_PWM, self.HIGH)
+
+    def polTurnLeft(self):
+        print("Called function polTurnLeft()")
+        self.polReset()
+        self.write(self.POL_LEFT_PWM, self.HIGH)   
 
     # READ FUNCTIONS
     def readLimEl(self):
         print("Called function readLimEl()")
 
         print("El limit switch returned:")
-        # print(self.read(LIMIT_ENC_EL))
 
         return datetime.now().strftime(
             "%H:%M:%S"
@@ -252,19 +218,14 @@ class RotationBase:
         return (
             self.elHall.get_elevation_angle()
         )  # FIXME: IN THE END WE WANT TO DISPLAY SOMETHING MORE MEANINGFUL
+    
+    def getPolAngle(self):
         
-
-
+        #voltage = self.VoltsPerADCVal * wpi.analogRead(POL_POTENTIOMETER)
+        #return(voltage*self.polDegreesPerVolt)
+        return wpi.analogRead(self.POL_POTENTIOMETER)
+        
 
 class Rotation(RotationBase, metaclass=Singleton):
     pass
 
-
-def main():
-    myrotate = Rotation()
-
-    myrotate.rotate()
-
-
-if __name__ == "__main__":
-    main()

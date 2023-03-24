@@ -9,7 +9,6 @@ path = "/home/odroid/.local/lib/python3.10/site-packages"
 sys.path.insert(0, path)
 import odroid_wiringpi as wpi
 
-
 class Orientation:
     # az = 0
     # el = 0
