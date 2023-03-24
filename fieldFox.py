@@ -128,7 +128,7 @@ class FieldFox:
             self.oldSig = newSig
             return False
 
-    def findPeakSig(self):
+    def autoPeak(self):
         # Maximize power over azimuth
         # Might instead want a certain window size - related to time it takes to move x degrees?
         initAz = self.myRotate.getAzAngle()

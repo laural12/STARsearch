@@ -44,7 +44,7 @@ def make_window():
     polarization = [
         [sg.Button("Pol right")],
         [sg.Button("Pol left")],
-        [sg.Button("Stop pol", button_color=('green'))],
+        [sg.Button("Stop pol", button_color=("green"))],
         [sg.Text("Enter desired pol angle")],
         [
             sg.Input(
@@ -142,6 +142,8 @@ window = sg.Window("Manual antenna control", make_window(), finalize=True)
 
 # Instantiate rotate class
 myRotate = Rotation(GUI_test=True)
+myRotate.elReset()
+myRotate.azReset()  # So it doesn't weirdly start moving everything
 orient = Orientation()
 # orient.orientation_init()
 # mySignal = FieldFox()

@@ -1,8 +1,12 @@
 # import WiringPi.GPIO as GPIO
 
-
+import numpy as np
+import time
 import sys
 from datetime import datetime
+
+from fieldFox import FieldFox
+ff = FieldFox()
 
 path = "/home/odroid/.local/lib/python3.10/site-packages"
 # path = "/home/laura/.local/lib/python3.8/site-packages"
@@ -224,6 +228,89 @@ class RotationBase:
         #voltage = self.VoltsPerADCVal * wpi.analogRead(POL_POTENTIOMETER)
         #return(voltage*self.polDegreesPerVolt)
         return wpi.analogRead(self.POL_POTENTIOMETER)
+    
+    def autoPeak(self):
+        # Maximize power over azimuth
+        # Might instead want a certain window size - related to time it takes to move x degrees?
+        initAz = self.getAzAngle()
+        self.azTurnRight()  # Clockwise is positive
+
+        windSize = 10
+        window = np.repeat(0.0, windSize)
+        pwrLevels = np.array([])
+        azAngles = np.array([])
+        while self.getAzAngle() < initAz + ff.azWindow:
+            # Exponential weighted moving average - higher alpha means the average is more resistant to change
+            # self.powerLevel = (1 - self.alpha) * self.readSig() + self.alpha * self.powerLevel
+            window[:-1] = window[1:]
+            window[-1] = ff.readSig()
+
+            # Record average power at this level
+            pwrLevels = np.append(pwrLevels, np.mean(window))
+            azAngles = np.append(
+                azAngles, self.getAzAngle()
+            )  # and record corresponding azimuth angle
+
+        self.azTurnLeft()  # CCW is negative
+        while self.getAzAngle() > initAz - ff.azWindow:
+            # self.powerLevel = (1 - self.alpha) * self.readSig() + self.alpha * self.powerLevel
+            window[:-1] = window[1:]
+            window[-1] = ff.readSig()
+
+            # Record average power at this level
+            pwrLevels = np.append(pwrLevels, np.mean(window))
+            azAngles = np.append(
+                azAngles, self.getAzAngle()
+            )  # and record corresponding azimuth angle
+
+        bestAz = azAngles[np.argmax(pwrLevels)]
+        self.azTurnRight()
+        while self.getAzAngle() < bestAz:
+            time.sleep(
+                0.001
+            )  # 0.5*(1/64) = .0078 second resolution on the azimuth hall sensors
+        self.azReset()
+
+        # Now maximize power over elevation
+        initEl = self.getElAngle()
+        self.elTurnUp()  # Up is positive
+
+        windSize = 10
+        window = np.repeat(0.0, windSize)
+        pwrLevels = np.array([])
+        elAngles = np.array([])
+        while self.getElAngle() < initEl + ff.elWindow:
+            # Exponential weighted moving average - higher alpha means the average is more resistant to change
+            # self.powerLevel = (1 - self.alpha) * self.readSig() + self.alpha * self.powerLevel
+            window[:-1] = window[1:]
+            window[-1] = ff.readSig()
+
+            # Record average power at this level
+            pwrLevels = np.append(pwrLevels, np.mean(window))
+            elAngles = np.append(
+                elAngles, self.getElAngle()
+            )  # and record corresponding azimuth angle
+
+        self.elTurnDown()  # Down is negative
+        while self.getElAngle() > initAz - ff.azWindow:
+            # self.powerLevel = (1 - self.alpha) * self.readSig() + self.alpha * self.powerLevel
+            window[:-1] = window[1:]
+            window[-1] = ff.readSig()
+
+            # Record average power at this level
+            pwrLevels = np.append(pwrLevels, np.mean(window))
+            elAngles = np.append(
+                elAngles, self.getElAngle()
+            )  # and record corresponding azimuth angle
+
+        bestEl = elAngles[np.argmax(pwrLevels)]
+        self.elTurnUp()
+        while self.getElAngle() < bestEl:
+            time.sleep(
+                0.001
+            )  # 0.5*(1/184) = .0027 second resolution on the elevation hall sensors
+        self.elReset()
+
         
 
 class Rotation(RotationBase, metaclass=Singleton):
