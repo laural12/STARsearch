@@ -43,6 +43,13 @@ class ElevationHallSensors:
 
         sensorThread = threading.Thread(target = self.thread_function, daemon=True)
         sensorThread.start()
+        
+    def reset(self, EInitial):
+        
+        #Calculate initial values
+        self.E = EInitial
+        self.A = 90 - EInitial + self.DminusF
+        self.a = np.sqrt(self.b**2 + self.c**2 - 2*self.b*self.c*np.cos(np.pi/180.*self.A))
 
     def thread_function(self):
         while (True):

@@ -30,6 +30,9 @@ class AzimuthHallSensors:
 
         sensorThread = threading.Thread(target = self.thread_function, daemon=True)
         sensorThread.start()
+        
+    def reset(self, azInitial):
+        self.az = azInitial
 
     def get_azimuth(self):
         return self.az

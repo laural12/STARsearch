@@ -3,6 +3,7 @@
 import numpy as np
 import time
 import sys
+import pickle
 from datetime import datetime
 
 from fieldFox import FieldFox
@@ -37,15 +38,16 @@ class RotationBase:
     maxVoltage = 1.8 #Assumed
     azTolerance = 0.1
     elTolerance = 0.1
-    polDegreesPerVolt = maxAngle/maxVoltage
-    VoltsPerADCVal = 1.8/(2**10 - 1) # about 0.00176V/ADC
+    polDegreesPerVolt = 180.0/.424
+    polDegOffset = -112.0
+    VoltsPerADCVal = .424/(1580.0-606.0) # about 0.00176V/ADC
 
     EL_LEFT_PWM = 21 # UP
     EL_RIGHT_PWM = 22 # DOWN
     AZ_LEFT_PWM = 28
     AZ_RIGHT_PWM = 30
-    POL_LEFT_PWM = 19
-    POL_RIGHT_PWM = 18
+    POL_RIGHT_PWM = 19
+    POL_LEFT_PWM = 18
     POL_POTENTIOMETER = 0 #AIN0 ???????      
 
     # input pins
@@ -61,8 +63,11 @@ class RotationBase:
         self.azTicks = 0
         self.elTicks = 0
         self.azOfAzLimitSwitch = 134.5
-        self.elOfElLimiSwitch = 12.85
-        self.azOfEllimitSwitchAz = 169.47
+        self.elOfElLimitSwitch = 12.85
+        self.azOfElLimitSwitch = 169.47
+        self.avgDeg = 0.0
+        self.volts=0.0
+        self.ADC = 0.0
        
 
         if not self.GUI_test:
@@ -78,40 +83,43 @@ class RotationBase:
             wpi.pinMode(self.POL_RIGHT_PWM, self.OUTPUT)  # GPIO 18
             
             #Initializing Hall Sensors
-            self.azHall = AzimuthHallSensors(0, self.AZ_ENC1)
-            self.elHall = ElevationHallSensors(0, self.EL_ENC1)
+            with open('currOrient.pickle', 'rb') as handle:
+                currOrient = pickle.load(handle)
+                
+            self.azHall = AzimuthHallSensors(currOrient["az"], self.AZ_ENC1)
+            self.elHall = ElevationHallSensors(currOrient["el"], self.EL_ENC1)
 
 
     def initialize_orientation(self):
         print("Called function initialize_orientation()")
-
+        
         #Turn left until hitting limit switch
         self.azTurnLeft()
-        while (self.readLimAz == 0):
+        while (self.readLimAz() == 0):
             print("turning left until limit switch")
 
         #Stop after hitting limit switch and reset az encoder
         self.azReset()
-        self.azHall = AzimuthHallSensors(self.azOfAzLimitSwitch, self.AZ_ENC1)
+        self.azHall.reset(self.azOfAzLimitSwitch)
         
         #Turn right until reaching elevation limit switch azimuth
         self.azTurnRight()
-        while(self.getAzAngle < self.azOfEllimitSwitchAz):
+        while(self.getAzAngle() < self.azOfElLimitSwitch):
             print("turning right to el limit switch")
         self.azReset()
-
+        
         #Turn down until hitting el limit switch
         self.elTurnDown()
-        while(self.readLimEl == 0):
+        while(self.readLimEl() == 0):
             print("Turning down")
         #Stop hall sensors and reinitialize limit switch
         self.elReset()
-        self.elHall = ElevationHallSensors(self.elOfElLimiSwitch, self.EL_ENC1)
+        self.elHall.reset(self.elOfElLimitSwitch)
     
     def autoFind(self, azDesired, elDesired):
         #Calculate Errors
-        azError = float(self.getAzAngle()) - azDesired
-        elError = float(self.getElAngle()) - elDesired
+        azError = self.getAzAngle() - azDesired
+        elError = self.getElAngle() - elDesired
 
         try:
             #Control Loop
@@ -138,8 +146,8 @@ class RotationBase:
                     self.elReset()
 
                 #recalculate errors
-                azError = float(self.getAzAngle()) - azDesired
-                elError = float(self.getElAngle()) - elDesired
+                azError = self.getAzAngle() - azDesired
+                elError = self.getElAngle() - elDesired
             
             self.azReset()
             self.elReset()
@@ -202,17 +210,12 @@ class RotationBase:
 
     def elTurnUp(self):
         print("Called function elTurnUp()")
-
-        # wpi.digitalWrite(EL_ENABLE, HIGH)  # el enable
-        # wpi.digitalWrite(EL_LEFT_PWM, LOW)  # el set left low
-        # wpi.digitalWrite(EL_RIGHT_PWM, HIGH)  # el set right high
         
         self.elHall.set_direction(raising = True)
-        
         self.elReset()
-        self.elEnable()
+
         self.elLeftPWM()
-        #self.elRightPWM()
+
 
     def elTurnDown(self):
         print("Called function elTurnDown()")
@@ -240,25 +243,25 @@ class RotationBase:
         self.write(self.POL_RIGHT_PWM, self.LOW)  # el right disable
 
     def polTurnRight(self):
-        print("Called function polTurnRight()")
         self.polReset()
+        print("Called function polTurnRight()")
         self.write(self.POL_RIGHT_PWM, self.HIGH)
 
     def polTurnLeft(self):
-        print("Called function polTurnLeft()")
         self.polReset()
+        print("Called function polTurnLeft()")
         self.write(self.POL_LEFT_PWM, self.HIGH)   
 
     # READ FUNCTIONS
     def readLimEl(self):
-        print("Called function readLimEl()")
+        #print("Called function readLimEl()")
 
-        print("El limit switch returned:")
+        #print("El limit switch returned:")
 
-        return datetime.now().strftime(
-            "%H:%M:%S"
-        )  # FIXME: I DON'T WANT TO READ TWICE SO GET RID OF PRINT ONCE VERIFIED
-        # return self.read(LIMIT_ENC_EL)
+        #return datetime.now().strftime(
+        #    "%H:%M:%S"
+        #)  # FIXME: I DON'T WANT TO READ TWICE SO GET RID OF PRINT ONCE VERIFIED
+        return self.read(self.LIMIT_ENC_EL)
 
     def readLimAz(self):
         # print("Called function readLimAz()")
@@ -288,21 +291,34 @@ class RotationBase:
         )  # FIXME: IN THE END WE WANT TO DISPLAY SOMETHING MORE MEANINGFUL
     
     def getPolAngle(self):
+        alpha = 0.97
         
-        #voltage = self.VoltsPerADCVal * wpi.analogRead(POL_POTENTIOMETER)
-        #return(voltage*self.polDegreesPerVolt)
-        return wpi.analogRead(self.POL_POTENTIOMETER)
+        adc = wpi.analogRead(self.POL_POTENTIOMETER)
+        voltage = self.VoltsPerADCVal * wpi.analogRead(self.POL_POTENTIOMETER)
+        degrees = (voltage*self.polDegreesPerVolt)
+        
+        self.avgDeg = (1 - alpha) * degrees + alpha * self.avgDeg
+        self.volts = (1 - alpha) * voltage + alpha * self.volts
+        self.ADC = (1 - alpha) * adc + alpha * self.ADC
+        
+        return self.avgDeg + self.polDegOffset
+        #return wpi.analogRead(self.POL_POTENTIOMETER)
     
-    def autoPeak(self):
+    def autoPeak(self, freq):
+        # First make sure we look at the right freq
+        ff.setCenterFreq(freq)
+    
         # Maximize power over azimuth
         # Might instead want a certain window size - related to time it takes to move x degrees?
         initAz = self.getAzAngle()
-        self.azTurnRight()  # Clockwise is positive
+        
 
         windSize = 10
         window = np.repeat(0.0, windSize)
         pwrLevels = np.array([])
         azAngles = np.array([])
+        print(f"az angle: {self.getAzAngle()}")
+        self.azTurnRight()  # Clockwise is positive
         while self.getAzAngle() < initAz + ff.azWindow:
             # Exponential weighted moving average - higher alpha means the average is more resistant to change
             # self.powerLevel = (1 - self.alpha) * self.readSig() + self.alpha * self.powerLevel
@@ -315,7 +331,9 @@ class RotationBase:
                 azAngles, self.getAzAngle()
             )  # and record corresponding azimuth angle
 
+        print(f"az angle: {self.getAzAngle()}")
         self.azTurnLeft()  # CCW is negative
+        
         while self.getAzAngle() > initAz - ff.azWindow:
             # self.powerLevel = (1 - self.alpha) * self.readSig() + self.alpha * self.powerLevel
             window[:-1] = window[1:]
@@ -327,7 +345,10 @@ class RotationBase:
                 azAngles, self.getAzAngle()
             )  # and record corresponding azimuth angle
 
+        print(f"max pwr: {np.max(pwrLevels)}")
+        print(f"len pwrLevels = {len(pwrLevels)}")
         bestAz = azAngles[np.argmax(pwrLevels)]
+        print(f"best az angle: {bestAz}")
         self.azTurnRight()
         while self.getAzAngle() < bestAz:
             time.sleep(
@@ -337,12 +358,14 @@ class RotationBase:
 
         # Now maximize power over elevation
         initEl = self.getElAngle()
-        self.elTurnUp()  # Up is positive
+        
 
         windSize = 10
         window = np.repeat(0.0, windSize)
         pwrLevels = np.array([])
         elAngles = np.array([])
+        print(f"el angle: {self.getElAngle()}")
+        self.elTurnUp()  # Up is positive
         while self.getElAngle() < initEl + ff.elWindow:
             # Exponential weighted moving average - higher alpha means the average is more resistant to change
             # self.powerLevel = (1 - self.alpha) * self.readSig() + self.alpha * self.powerLevel
@@ -355,8 +378,9 @@ class RotationBase:
                 elAngles, self.getElAngle()
             )  # and record corresponding azimuth angle
 
+        print(f"el angle: {self.getElAngle()}")
         self.elTurnDown()  # Down is negative
-        while self.getElAngle() > initAz - ff.azWindow:
+        while self.getElAngle() > initEl - ff.elWindow:
             # self.powerLevel = (1 - self.alpha) * self.readSig() + self.alpha * self.powerLevel
             window[:-1] = window[1:]
             window[-1] = ff.readSig()
@@ -367,13 +391,42 @@ class RotationBase:
                 elAngles, self.getElAngle()
             )  # and record corresponding azimuth angle
 
+        print(f"max pwr: {np.max(pwrLevels)}")
+        print(f"len pwrLevels = {len(pwrLevels)}")
         bestEl = elAngles[np.argmax(pwrLevels)]
+        print(f"best el angle: {bestEl}")
         self.elTurnUp()
         while self.getElAngle() < bestEl:
             time.sleep(
                 0.001
             )  # 0.5*(1/184) = .0027 second resolution on the elevation hall sensors
+            
         self.elReset()
+        
+        print(f"power: {ff.readSig()}")
+        
+    def getChPower(self):
+        return ff.readSig()
+        
+    def autoPol(self, expectedPol):
+        # ----------------- This section only uses math -----------------------------
+        polTolerance = 1 # degrees
+        if self.getPolAngle() > expectedPol + polTolerance:
+            self.polTurnLeft()
+            while self.getPolAngle() > expectedPol + polTolerance:
+                # print(self.getPolAngle())
+                time.sleep(
+                    0.01
+                )  # Change the time sleeping to increase resolution. Replace with "pass" for best resolution
+        else:
+            self.polTurnRight()
+            while self.getPolAngle() < expectedPol - polTolerance:
+                # print(self.getPolAngle())
+                time.sleep(
+                    0.01
+                )  # Change the time sleeping to increase resolution. Replace with "pass" for best resolution
+                
+        self.polReset()
 
         
 

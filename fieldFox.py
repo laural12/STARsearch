@@ -1,26 +1,32 @@
+import sys
+
+path = "/home/odroid/.local/lib/python3.10/site-packages"
+# path = "/home/laura/.local/lib/python3.8/site-packages"
+sys.path.insert(0, path)
+
 import time
 from queue import Queue
 import pyvisa
-from rotation import Rotation
-from orientation import Orientation
+#from rotation import Rotation
+#from orientation import Orientation
 import numpy as np
 
 
 class FieldFox:
-    myRotate = Rotation(GUI_test=False)
-    orient = Orientation()
+    #myRotate = Rotation(GUI_test=False)
+    #orient = Orientation()
 
     def __init__(self):
-        self.ourTime = Queue(maxSize=200)
-        self.sigStrength = Queue(maxSize=200)
-        self.az = Queue(maxsize=200)
-        self.el = Queue(maxsize=200)
+        #self.ourTime = Queue(maxSize=200)
+        #self.sigStrength = Queue(maxSize=200)
+        #self.az = Queue(maxsize=200)
+        #self.el = Queue(maxsize=200)
 
         self.powerLevel = 0.0
         self.alpha = 0.9
 
         self.elWindow = 1.0  # degrees
-        self.azWindow = 1.0  # degrees
+        self.azWindow = 2.0  # degrees
 
         self.ip = "192.168.0.1"  # This is a static ip, so it shouldn't change
 
@@ -35,19 +41,28 @@ class FieldFox:
         self.inst.write("SENS:MEAS:CHAN CHP")
 
     def readSig(self):
-        print("Reading channel power")
+        # print("Reading channel power")
         # print(self.inst.query("*IDN?"))
 
         # NOTE: DOES THIS LINE NEED ERROR HANDLING? WILL IT EVER NOT GET THE EXPECTED VALUES?
-        power, psd = self.inst.query(
+        data = self.inst.query(
             "CALC:MEAS:DATA?"
         )  # This is the command that actually gives you info. Gives power, then PSD, in dB
 
-        print("power:", power)
-        print("psd:", psd)
+        # print("data:", data)
+        power = float(data.split(",")[0])
+        # print("power:", power)
+        # print("psd:", psd)
 
         return power
+        
+    def setCenterFreq(self, freq):
+        # Set center freq on fieldfox
+        print(f"Set freq to {freq}")
+        
+        self.inst.write(f"FREQ:CENT {freq}")
 
+"""
     def sigMakeQsAndLists(self):
         # has a queue of time and signal data
         if self.ourTime.full() != True:
@@ -81,7 +96,9 @@ class FieldFox:
 
         return timeList, sigList, azList, elList
 
-    def orientPol(self, expectedPol):
+"""
+"""
+    def autoPol(self, expectedPol):
         # ----------------- This section only uses math -----------------------------
         if self.myRotate.getPolAngle() > expectedPol:
             self.myRotate.polTurnLeft()
@@ -117,6 +134,7 @@ class FieldFox:
 
         # return
         # rotate feed to angle of polarization? is this angle known?
+
 
     # returns true if the signal has increased, false if not
     def checkIfSigIncrease(self):
@@ -209,7 +227,10 @@ class FieldFox:
                 0.001
             )  # 0.5*(1/184) = .0027 second resolution on the elevation hall sensors
         self.myRotate.elReset()
+        
+
 
     def maintainPeakSig(self):
         return
         # if gain decreases, rerun findPeakPol
+"""

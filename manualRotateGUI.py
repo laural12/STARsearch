@@ -3,6 +3,7 @@ import sys
 import mmap, re
 from tkinter import CENTER
 import warnings
+import pickle
 
 from datetime import datetime
 
@@ -34,6 +35,7 @@ def make_window():
 
     outputs = [
         [sg.Text(key="Az limit switch")],
+        [sg.Text(key="El limit switch")],
         [sg.Text(key="Az Angle")],
         [sg.Text(key="El Angle")],
         [sg.Text(key="FF input")],
@@ -141,10 +143,11 @@ window = sg.Window("Manual antenna control", make_window(), finalize=True)
 
 
 # Instantiate rotate class
-myRotate = Rotation(GUI_test=True)
+myRotate = Rotation(GUI_test=False)
 myRotate.elReset()
 myRotate.azReset()  # So it doesn't weirdly start moving everything
-orient = Orientation()
+myRotate.polReset()
+# orient = Orientation()
 # orient.orientation_init()
 # mySignal = FieldFox()
 
@@ -156,6 +159,9 @@ while True:
     if (
         event == sg.WIN_CLOSED or event == "Close GUI"
     ):  # if user closes window or clicks Close GUI
+        currOrient = {"az" : myRotate.getAzAngle(), "el" : myRotate.getElAngle()}
+        with open("currOrient.pickle", "wb") as handle:
+            pickle.dump(currOrient, handle, protocol=pickle.HIGHEST_PROTOCOL)
         break
     elif event == "Az turn left":
         print("Az turn left")
@@ -183,32 +189,33 @@ while True:
         print("Auto Find")
         print(f"az: {values['autofind_az']}")
         print(f"el: {values['autofind_el']}")
-        # myRotate.autoFindTest()
+        myRotate.autoFind(float(values['autofind_az']), float(values['autofind_el']))
     elif event == "Orient Init":
         print("Orient Init")
-        # orient.orientation_init()
+        myRotate.initialize_orientation()
     elif event == "Pol right":
         print("Pol right")
-        # myRotate.polRight()
+        myRotate.polTurnRight()
     elif event == "Pol left":
         print("Pol left")
-        # myRotate.polLeft()
+        myRotate.polTurnLeft()
     elif event == "Stop pol":
         print("Stop pol")
-        # myRotate.stopPol()
+        myRotate.polReset()
     elif event == "Auto Pol":
         print("Auto Pol")
         print(values["pol_angle"])
-        # myRotate.autoPol(values["pol_angle"])
+        myRotate.autoPol(float(values["pol_angle"]))
     elif event == "Auto Peak":
         print("Auto Peak")
         print(f"Freq: {values['autopeak_freq']}")
-        # myRotate.autoPeak(values['autopeak_freq'])
+        myRotate.autoPeak(values['autopeak_freq'])
 
     window["Az limit switch"].update(f"Az lim: {myRotate.readLimAz()}")
+    window["El limit switch"].update(f"El lim: {myRotate.readLimEl()}")
     window["El Angle"].update(f"El Angle: {myRotate.getElAngle()}")
     window["Az Angle"].update(f"Az Angle: {myRotate.getAzAngle()}")
     window["Pol value"].update(f"Pol value: {myRotate.getPolAngle()}")
     # window["Az ticks"].update(f"Az ticks: {myRotate.getAzTicks()}")
     # window["El ticks"].update(f"El ticks: {myRotate.getElTicks()}")
-    # window["FF input"].update(f"Channel power: {mySignal.readSig()}")
+    # window["FF input"].update(f"Channel power: {myRotate.getChPower()}")
