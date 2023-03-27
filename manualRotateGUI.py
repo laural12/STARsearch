@@ -94,6 +94,15 @@ def make_window():
     ]
     orientCalFr = sg.Frame("Calibrate Orientation", orientCal)
 
+    presets = [
+        [sg.Text("Choose Antenna:")],
+        [sg.Combo(["Antenna 1", "Antenna 2", "Antenna 3"], key="Ant")],
+        [sg.Text("Choose Satellite:")],
+        [sg.Combo(["Galaxy 16", "SES 1"], key="Sat")],
+        [sg.Button("Acquire")],
+    ]
+    presetsFr = sg.Frame("Presets", presets)
+
     leftCol = [
         [sg.Text("Azimuth")],
         [sg.Button("Az turn left")],
@@ -109,6 +118,7 @@ def make_window():
 
     midCol = [
         [outputsFr],
+        [presetsFr],
         [polarizationFr],
     ]
 
@@ -143,7 +153,7 @@ window = sg.Window("Manual antenna control", make_window(), finalize=True)
 
 
 # Instantiate rotate class
-myRotate = Rotation(GUI_test=False)
+myRotate = Rotation(GUI_test=True)
 myRotate.elReset()
 myRotate.azReset()  # So it doesn't weirdly start moving everything
 myRotate.polReset()
@@ -151,7 +161,10 @@ myRotate.polReset()
 # orient.orientation_init()
 # mySignal = FieldFox()
 
-# CONSIDER CREATING A FUNCTION DICT???
+# Dictionary of satellite info
+galaxy16 = {"az": 150.0, "el": 41.7}
+ses1 = {"az": 153.0, "el": 42.2}
+satInfo = {"Galaxy 16": galaxy16, "SES 1": ses1}
 
 # Event Loop to process "events" and get the "values" of the inputs
 while True:
@@ -159,7 +172,7 @@ while True:
     if (
         event == sg.WIN_CLOSED or event == "Close GUI"
     ):  # if user closes window or clicks Close GUI
-        currOrient = {"az" : myRotate.getAzAngle(), "el" : myRotate.getElAngle()}
+        currOrient = {"az": myRotate.getAzAngle(), "el": myRotate.getElAngle()}
         with open("currOrient.pickle", "wb") as handle:
             pickle.dump(currOrient, handle, protocol=pickle.HIGHEST_PROTOCOL)
         break
@@ -189,7 +202,7 @@ while True:
         print("Auto Find")
         print(f"az: {values['autofind_az']}")
         print(f"el: {values['autofind_el']}")
-        myRotate.autoFind(float(values['autofind_az']), float(values['autofind_el']))
+        myRotate.autoFind(float(values["autofind_az"]), float(values["autofind_el"]))
     elif event == "Orient Init":
         print("Orient Init")
         myRotate.initialize_orientation()
@@ -209,7 +222,12 @@ while True:
     elif event == "Auto Peak":
         print("Auto Peak")
         print(f"Freq: {values['autopeak_freq']}")
-        myRotate.autoPeak(values['autopeak_freq'])
+        myRotate.autoPeak(values["autopeak_freq"])
+    elif event == "Acquire":
+        print("Acquire")
+        print(f"Antenna: {values['ant']}")
+        print(f"Satellite: {values['sat']}")
+        myRotate.autoFind(satInfo[values["sat"]]["az"], satInfo[values["sat"]]["el"])
 
     window["Az limit switch"].update(f"Az lim: {myRotate.readLimAz()}")
     window["El limit switch"].update(f"El lim: {myRotate.readLimEl()}")
