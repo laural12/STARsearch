@@ -34,7 +34,7 @@ class FieldFox:
         self.inst = rm.open_resource(f"TCPIP0::{self.ip}::inst0:INSTR")
 
         # Set center freq
-        self.inst.write("FREQ:CENT 1.185e9")
+        self.inst.write("FREQ:CENT 1.339e9")
         # Set iBW to be within 100kHz (narrow bandwidth)
         self.inst.write("SENS:CME:IBW 100e3")
         # Set up to measure Channel Power

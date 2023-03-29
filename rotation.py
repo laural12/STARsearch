@@ -36,8 +36,8 @@ class RotationBase:
 
     maxAngle = 360.0 #Unknown needs calibration
     maxVoltage = 1.8 #Assumed
-    azTolerance = 0.1
-    elTolerance = 0.1
+    azTolerance = 0.05
+    elTolerance = 0.05
     polDegreesPerVolt = 180.0/.424
     polDegOffset = -112.0
     VoltsPerADCVal = .424/(1580.0-606.0) # about 0.00176V/ADC
@@ -291,7 +291,7 @@ class RotationBase:
         )  # FIXME: IN THE END WE WANT TO DISPLAY SOMETHING MORE MEANINGFUL
     
     def getPolAngle(self):
-        alpha = 0.97
+        alpha = 0.995
         
         adc = wpi.analogRead(self.POL_POTENTIOMETER)
         voltage = self.VoltsPerADCVal * wpi.analogRead(self.POL_POTENTIOMETER)
@@ -347,7 +347,7 @@ class RotationBase:
 
         print(f"max pwr: {np.max(pwrLevels)}")
         print(f"len pwrLevels = {len(pwrLevels)}")
-        bestAz = azAngles[np.argmax(pwrLevels)]
+        bestAz = azAngles[np.argmax(pwrLevels[11:]) + 11]
         print(f"best az angle: {bestAz}")
         self.azTurnRight()
         while self.getAzAngle() < bestAz:
@@ -393,7 +393,7 @@ class RotationBase:
 
         print(f"max pwr: {np.max(pwrLevels)}")
         print(f"len pwrLevels = {len(pwrLevels)}")
-        bestEl = elAngles[np.argmax(pwrLevels)]
+        bestEl = elAngles[np.argmax(pwrLevels[11:]) + 11]
         print(f"best el angle: {bestEl}")
         self.elTurnUp()
         while self.getElAngle() < bestEl:

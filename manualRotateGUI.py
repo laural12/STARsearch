@@ -153,7 +153,7 @@ window = sg.Window("Manual antenna control", make_window(), finalize=True)
 
 
 # Instantiate rotate class
-myRotate = Rotation(GUI_test=True)
+myRotate = Rotation(GUI_test=False)
 myRotate.elReset()
 myRotate.azReset()  # So it doesn't weirdly start moving everything
 myRotate.polReset()
