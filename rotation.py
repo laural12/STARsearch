@@ -62,12 +62,13 @@ class RotationBase:
         self.GUI_test = GUI_test
         self.azTicks = 0
         self.elTicks = 0
-        self.azOfAzLimitSwitch = 134.5
-        self.elOfElLimitSwitch = 12.85
-        self.azOfElLimitSwitch = 169.47
+        self.azOfAzLimitSwitch = 133.5 # 134.5
+        self.elOfElLimitSwitch = 12.65 # 12.85
+        self.azOfElLimitSwitch = 168.47 # 169.47
         self.avgDeg = 0.0
         self.volts=0.0
         self.ADC = 0.0
+        self.isRunning = False
        
 
         if not self.GUI_test:
@@ -97,6 +98,7 @@ class RotationBase:
         self.azTurnLeft()
         while (self.readLimAz() == 0):
             print("turning left until limit switch")
+            #pass
 
         #Stop after hitting limit switch and reset az encoder
         self.azReset()

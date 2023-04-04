@@ -12,7 +12,7 @@ import odroid_wiringpi as wpi
 
 class AzimuthHallSensors:
 
-    atLim = 133.0 # azimuth degrees when hitting limit switch
+    atLim = 132.0 # azimuth degrees when hitting limit switch
     az = 0.0 #stores current azimuth in degrees
     currentHallValue = 0.0
     previousHallValue = 0

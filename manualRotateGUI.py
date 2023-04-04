@@ -18,7 +18,7 @@ import matplotlib
 
 matplotlib.use("TkAgg")
 
-from rotation_old import Rotation
+from rotation import Rotation
 from orientation import Orientation
 
 print("Launching GUI...")
@@ -41,8 +41,8 @@ def make_window():
 
     # Put all the options in their own little frames (gives them a border and title)
     outputs = [
-        # [sg.Text(key="Az limit switch")],
-        # [sg.Text(key="El limit switch")],
+        [sg.Text(key="Az limit switch")],
+        [sg.Text(key="El limit switch")],
         [sg.Text(key="Az Angle")],
         [sg.Text(key="El Angle")],
         [sg.Text(key="FF input")],
@@ -178,7 +178,7 @@ window = sg.Window("STAR Control", make_window(), finalize=True)
 
 
 # Instantiate rotate class
-myRotate = Rotation(GUI_test=True)
+myRotate = Rotation(GUI_test=False)
 
 # So it doesn't weirdly start moving everything
 myRotate.elReset()
@@ -235,7 +235,7 @@ while True:
             desAz = float(values["autofind_az"])
             desEl = float(values["autofind_el"])
             x = threading.Thread(
-                target=myRotate.autoFind(),
+                target=myRotate.autoFind,
                 args=(desAz, desEl),
                 daemon=True,  # Might want to set it false if you want this thread to finish
             )
@@ -247,12 +247,14 @@ while True:
         print("Orient Init")
         # myRotate.initialize_orientation()
         x = threading.Thread(
-            target=myRotate.initialize_orientation(),
+            target=myRotate.initialize_orientation,
             args=(),
             daemon=True,  # Might want to set it false if you want this thread to finish
         )
         threadList.append(x)
+        print("here 1")
         x.start()
+        print("here 2")
     elif event == "Pol right":
         print("Pol right")
         myRotate.polTurnRight()
@@ -278,7 +280,7 @@ while True:
         try:
             desPol = float(values["pol_angle"])
             x = threading.Thread(
-                target=myRotate.autoPol(),
+                target=myRotate.autoPol,
                 args=(desPol),
                 daemon=True,  # Might want to set it false if you want this thread to finish
             )
@@ -291,7 +293,7 @@ while True:
         print(f"Freq: {values['autopeak_freq']}")
         # myRotate.autoPeak(values["autopeak_freq"])
         x = threading.Thread(
-            target=myRotate.autoPeak(),
+            target=myRotate.autoPeak,
             args=(values["autopeak_freq"]),
             daemon=True,  # Might want to set it false if you want this thread to finish
         )
@@ -304,7 +306,7 @@ while True:
         # myRotate.autoFind(satInfo[values["sat"]]["az"], satInfo[values["sat"]]["el"])
         # myRotate.autoPol(satInfo[values["sat"]]["pol"])
         x = threading.Thread(
-            target=myRotate.autoFind(),
+            target=myRotate.autoFind,
             args=(satInfo[values["sat"]]["az"], satInfo[values["sat"]]["el"]),
             daemon=True,  # Might want to set it false if you want this thread to finish
         )
@@ -312,15 +314,15 @@ while True:
         x.start()
 
         x = threading.Thread(
-            target=myRotate.autoPol(),
+            target=myRotate.autoPol,
             args=(satInfo[values["sat"]]["pol"]),
             daemon=True,  # Might want to set it false if you want this thread to finish
         )
         threadList.append(x)
         x.start()
 
-    # window["Az limit switch"].update(f"Az lim: {myRotate.readLimAz()}")
-    # window["El limit switch"].update(f"El lim: {myRotate.readLimEl()}")
+    window["Az limit switch"].update(f"Az lim: {myRotate.readLimAz()}")
+    window["El limit switch"].update(f"El lim: {myRotate.readLimEl()}")
     # window["El Angle"].update(f"El Angle: {myRotate.getElAngle()}")
     window["El Angle"].update("El Angle: %.5f" % myRotate.getElAngle())
     # window["Az Angle"].update(f"Az Angle: {myRotate.getAzAngle()}")
@@ -330,4 +332,4 @@ while True:
     # window["Az ticks"].update(f"Az ticks: {myRotate.getAzTicks()}")
     # window["El ticks"].update(f"El ticks: {myRotate.getElTicks()}")
     # window["FF input"].update(f"Channel power: {myRotate.getChPower()}")
-    window["FF input"].update("Channel power: %.5f" % 0.0)
+    # window["FF input"].update("Channel power: %.5f" % 0.0)
