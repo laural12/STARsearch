@@ -4,6 +4,8 @@ import mmap, re
 from tkinter import CENTER
 import warnings
 import pickle
+import time
+import threading
 
 from datetime import datetime
 
@@ -11,31 +13,36 @@ from matplotlib.ticker import NullFormatter  # useful for `logit` scale
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import PySimpleGUI as sg
 import matplotlib
 
 matplotlib.use("TkAgg")
 
-import PySimpleGUI as sg
-
-from rotation import Rotation
+from rotation_old import Rotation
 from orientation import Orientation
 
-# from fieldFox import FieldFox
-print("imported orientation")
+print("Launching GUI...")
 
-sg.theme("DarkBlue12")
+sg.theme("DarkBlue12")  # Sets the color theme of GUI
+
+# def threadFunc():
+#     print("start")
+#     initTime = time.time()
+#     while time.time() < initTime + 5:
+#         time.sleep(0.1)
+
+#     print("done")
 
 
 # Creates the main window (type: sg.window)
 def make_window():
-    filterTip = "Filter files\nType in box to narrow down the list of files.\nFile list will update with list of files with string in filename."
-    threshTip = "Enter acceptable threshold\nMay vary depending on satellite"
-    aziTip = "Manually input desired azimuth"
-    eleTip = "Manually input desired elevation"
+    polTip = "Input desired polarization\n0 or 180: Horizontal\n90: Vertical"
+    freqTip = "Enter frequency at which to read power"
 
+    # Put all the options in their own little frames (gives them a border and title)
     outputs = [
-        [sg.Text(key="Az limit switch")],
-        [sg.Text(key="El limit switch")],
+        # [sg.Text(key="Az limit switch")],
+        # [sg.Text(key="El limit switch")],
         [sg.Text(key="Az Angle")],
         [sg.Text(key="El Angle")],
         [sg.Text(key="FF input")],
@@ -52,6 +59,7 @@ def make_window():
             sg.Input(
                 size=(10, 1),
                 key="pol_angle",
+                tooltip=polTip,
             )
         ],
         [sg.Button("Auto Pol")],
@@ -83,6 +91,7 @@ def make_window():
             sg.Input(
                 size=(10, 1),
                 key="autopeak_freq",
+                tooltip=freqTip,
             )
         ],
         [sg.Button("Auto Peak")],
@@ -95,15 +104,16 @@ def make_window():
     orientCalFr = sg.Frame("Calibrate Orientation", orientCal)
 
     presets = [
-        [sg.Text("Choose Antenna:")],
-        [sg.Combo(["Antenna 1", "Antenna 2", "Antenna 3"], key="Ant")],
         [sg.Text("Choose Satellite:")],
-        [sg.Combo(["Galaxy 16", "SES 1"], key="Sat")],
+        [sg.Combo(["Galaxy 16", "SES 1"], key="sat")],
         [sg.Button("Acquire")],
     ]
     presetsFr = sg.Frame("Presets", presets)
 
+    # Organize the GUI elements into columns
     leftCol = [
+        [sg.Text("Choose Antenna:")],
+        [sg.Combo(["Antenna 1", "Antenna 2", "Antenna 3"], key="ant")],
         [sg.Text("Azimuth")],
         [sg.Button("Az turn left")],
         [sg.Button("Az turn right")],
@@ -129,8 +139,9 @@ def make_window():
         [sg.Button("Close GUI")],
     ]
 
+    # Specify the layout
     layout = [
-        [sg.Text("Manual Antenna Control", font="Any 20")],
+        [sg.Text("STAR Control", font="Any 20")],
         [
             sg.Column(leftCol, element_justification="c"),
             sg.Column(midCol, element_justification="c"),
@@ -141,6 +152,7 @@ def make_window():
     return layout
 
 
+# Needed for drawing matplotlib figures (which we don't do, but the capability is here)
 def draw_figure(canvas, figure):
     figure_canvas_agg = FigureCanvasTkAgg(figure, canvas)
     figure_canvas_agg.draw()
@@ -148,25 +160,39 @@ def draw_figure(canvas, figure):
     return figure_canvas_agg
 
 
+# Also needed for drawing matplotlib figures
+def fig_maker():
+    plt.clf()
+    plt.close()
+    plt.figure(figsize=(3, 3))
+    plt.scatter(np.random.rand(1, 10), np.random.rand(1, 10))
+    plt.title("Signal Strength over Time")
+    plt.ylabel("Signal Strength")
+    plt.xlabel("Time")
+
+    return plt.gcf()
+
+
 # Create the Window
-window = sg.Window("Manual antenna control", make_window(), finalize=True)
+window = sg.Window("STAR Control", make_window(), finalize=True)
 
 
 # Instantiate rotate class
-myRotate = Rotation(GUI_test=False)
+myRotate = Rotation(GUI_test=True)
+
+# So it doesn't weirdly start moving everything
 myRotate.elReset()
-myRotate.azReset()  # So it doesn't weirdly start moving everything
+myRotate.azReset()
 myRotate.polReset()
-# orient = Orientation()
-# orient.orientation_init()
-# mySignal = FieldFox()
+
+threadList = list()
 
 # Dictionary of satellite info
-galaxy16 = {"az": 150.0, "el": 41.7}
-ses1 = {"az": 153.0, "el": 42.2}
+galaxy16 = {"az": 150.0, "el": 41.7, "pol": 0.0}
+ses1 = {"az": 153.0, "el": 42.2, "pol": 90.0}
 satInfo = {"Galaxy 16": galaxy16, "SES 1": ses1}
 
-# Event Loop to process "events" and get the "values" of the inputs
+fig_agg = None
 while True:
     event, values = window.read(timeout=10)
     if (
@@ -202,10 +228,31 @@ while True:
         print("Auto Find")
         print(f"az: {values['autofind_az']}")
         print(f"el: {values['autofind_el']}")
-        myRotate.autoFind(float(values["autofind_az"]), float(values["autofind_el"]))
+        try:
+            # myRotate.autoFind(
+            #     float(values["autofind_az"]), float(values["autofind_el"])
+            # )
+            desAz = float(values["autofind_az"])
+            desEl = float(values["autofind_el"])
+            x = threading.Thread(
+                target=myRotate.autoFind(),
+                args=(desAz, desEl),
+                daemon=True,  # Might want to set it false if you want this thread to finish
+            )
+            threadList.append(x)
+            x.start()
+        except ValueError:
+            print("Bad input: please enter a number")
     elif event == "Orient Init":
         print("Orient Init")
-        myRotate.initialize_orientation()
+        # myRotate.initialize_orientation()
+        x = threading.Thread(
+            target=myRotate.initialize_orientation(),
+            args=(),
+            daemon=True,  # Might want to set it false if you want this thread to finish
+        )
+        threadList.append(x)
+        x.start()
     elif event == "Pol right":
         print("Pol right")
         myRotate.polTurnRight()
@@ -215,25 +262,72 @@ while True:
     elif event == "Stop pol":
         print("Stop pol")
         myRotate.polReset()
+        # threadList = list()
+        # x = threading.Thread(
+        #     target=threadFunc,
+        #     args=(),
+        #     daemon=True,  # Might want to set it false if you want this thread to finish
+        # )
+        # threadList.append(x)
+        # x.start()
+        # threadFunc()
     elif event == "Auto Pol":
         print("Auto Pol")
         print(values["pol_angle"])
-        myRotate.autoPol(float(values["pol_angle"]))
+
+        try:
+            desPol = float(values["pol_angle"])
+            x = threading.Thread(
+                target=myRotate.autoPol(),
+                args=(desPol),
+                daemon=True,  # Might want to set it false if you want this thread to finish
+            )
+            threadList.append(x)
+            x.start()
+        except ValueError:
+            print("Bad input: please enter a number")
     elif event == "Auto Peak":
         print("Auto Peak")
         print(f"Freq: {values['autopeak_freq']}")
-        myRotate.autoPeak(values["autopeak_freq"])
+        # myRotate.autoPeak(values["autopeak_freq"])
+        x = threading.Thread(
+            target=myRotate.autoPeak(),
+            args=(values["autopeak_freq"]),
+            daemon=True,  # Might want to set it false if you want this thread to finish
+        )
+        threadList.append(x)
+        x.start()
     elif event == "Acquire":
         print("Acquire")
         print(f"Antenna: {values['ant']}")
         print(f"Satellite: {values['sat']}")
-        myRotate.autoFind(satInfo[values["sat"]]["az"], satInfo[values["sat"]]["el"])
+        # myRotate.autoFind(satInfo[values["sat"]]["az"], satInfo[values["sat"]]["el"])
+        # myRotate.autoPol(satInfo[values["sat"]]["pol"])
+        x = threading.Thread(
+            target=myRotate.autoFind(),
+            args=(satInfo[values["sat"]]["az"], satInfo[values["sat"]]["el"]),
+            daemon=True,  # Might want to set it false if you want this thread to finish
+        )
+        threadList.append(x)
+        x.start()
 
-    window["Az limit switch"].update(f"Az lim: {myRotate.readLimAz()}")
-    window["El limit switch"].update(f"El lim: {myRotate.readLimEl()}")
-    window["El Angle"].update(f"El Angle: {myRotate.getElAngle()}")
-    window["Az Angle"].update(f"Az Angle: {myRotate.getAzAngle()}")
-    window["Pol value"].update(f"Pol value: {myRotate.getPolAngle()}")
+        x = threading.Thread(
+            target=myRotate.autoPol(),
+            args=(satInfo[values["sat"]]["pol"]),
+            daemon=True,  # Might want to set it false if you want this thread to finish
+        )
+        threadList.append(x)
+        x.start()
+
+    # window["Az limit switch"].update(f"Az lim: {myRotate.readLimAz()}")
+    # window["El limit switch"].update(f"El lim: {myRotate.readLimEl()}")
+    # window["El Angle"].update(f"El Angle: {myRotate.getElAngle()}")
+    window["El Angle"].update("El Angle: %.5f" % myRotate.getElAngle())
+    # window["Az Angle"].update(f"Az Angle: {myRotate.getAzAngle()}")
+    window["Az Angle"].update("Az Angle: %.5f" % myRotate.getAzAngle())
+    # window["Pol value"].update(f"Pol value: {myRotate.getPolAngle()}")
+    window["Pol value"].update("Pol Angle: %.5f" % myRotate.getPolAngle())
     # window["Az ticks"].update(f"Az ticks: {myRotate.getAzTicks()}")
     # window["El ticks"].update(f"El ticks: {myRotate.getElTicks()}")
     # window["FF input"].update(f"Channel power: {myRotate.getChPower()}")
+    window["FF input"].update("Channel power: %.5f" % 0.0)
