@@ -188,7 +188,7 @@ myRotate.polReset()
 threadList = list()
 
 # Dictionary of satellite info
-galaxy16 = {"az": 150.0, "el": 41.7, "pol": 0.0}
+galaxy16 = {"az": 150.0, "el": 42.5, "pol": 0.0}
 ses1 = {"az": 153.0, "el": 42.2, "pol": 90.0}
 satInfo = {"Galaxy 16": galaxy16, "SES 1": ses1}
 
@@ -278,7 +278,7 @@ while True:
         print(values["pol_angle"])
 
         try:
-            desPol = float(values["pol_angle"])
+            desPol = [float(values["pol_angle"])]
             x = threading.Thread(
                 target=myRotate.autoPol,
                 args=(desPol),
@@ -294,7 +294,7 @@ while True:
         # myRotate.autoPeak(values["autopeak_freq"])
         x = threading.Thread(
             target=myRotate.autoPeak,
-            args=(values["autopeak_freq"]),
+            args=([values["autopeak_freq"]]),
             daemon=True,  # Might want to set it false if you want this thread to finish
         )
         threadList.append(x)
@@ -328,7 +328,7 @@ while True:
     # window["Az Angle"].update(f"Az Angle: {myRotate.getAzAngle()}")
     window["Az Angle"].update("Az Angle: %.5f" % myRotate.getAzAngle())
     # window["Pol value"].update(f"Pol value: {myRotate.getPolAngle()}")
-    window["Pol value"].update("Pol Angle: %.5f" % myRotate.getPolAngle())
+    window["Pol value"].update("Pol Angle: %.5f" % myRotate.getPolAngleDisp())
     # window["Az ticks"].update(f"Az ticks: {myRotate.getAzTicks()}")
     # window["El ticks"].update(f"El ticks: {myRotate.getElTicks()}")
     # window["FF input"].update(f"Channel power: {myRotate.getChPower()}")

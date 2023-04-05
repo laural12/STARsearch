@@ -39,7 +39,7 @@ class RotationBase:
     azTolerance = 0.05
     elTolerance = 0.05
     polDegreesPerVolt = 180.0/.424
-    polDegOffset = -112.0
+    polDegOffset = -112.0 - 20.0
     VoltsPerADCVal = .424/(1580.0-606.0) # about 0.00176V/ADC
 
     EL_LEFT_PWM = 21 # UP
@@ -92,71 +92,81 @@ class RotationBase:
 
 
     def initialize_orientation(self):
-        print("Called function initialize_orientation()")
-        
-        #Turn left until hitting limit switch
-        self.azTurnLeft()
-        while (self.readLimAz() == 0):
-            print("turning left until limit switch")
-            #pass
+        if not self.isRunning:
+            self.isRunning = True
+            
+            print("Called function initialize_orientation()")
+            
+            #Turn left until hitting limit switch
+            self.azTurnLeft()
+            while (self.readLimAz() == 0):
+                print("turning left until limit switch")
+                #pass
 
-        #Stop after hitting limit switch and reset az encoder
-        self.azReset()
-        self.azHall.reset(self.azOfAzLimitSwitch)
-        
-        #Turn right until reaching elevation limit switch azimuth
-        self.azTurnRight()
-        while(self.getAzAngle() < self.azOfElLimitSwitch):
-            print("turning right to el limit switch")
-        self.azReset()
-        
-        #Turn down until hitting el limit switch
-        self.elTurnDown()
-        while(self.readLimEl() == 0):
-            print("Turning down")
-        #Stop hall sensors and reinitialize limit switch
-        self.elReset()
-        self.elHall.reset(self.elOfElLimitSwitch)
+            #Stop after hitting limit switch and reset az encoder
+            self.azReset()
+            self.azHall.reset(self.azOfAzLimitSwitch)
+            
+            #Turn right until reaching elevation limit switch azimuth
+            self.azTurnRight()
+            while(self.getAzAngle() < self.azOfElLimitSwitch):
+                print("turning right to el limit switch")
+            self.azReset()
+            
+            #Turn down until hitting el limit switch
+            self.elTurnDown()
+            while(self.readLimEl() == 0):
+                print("Turning down")
+            #Stop hall sensors and reinitialize limit switch
+            self.elReset()
+            self.elHall.reset(self.elOfElLimitSwitch)
+            
+            self.isRunning = False
     
     def autoFind(self, azDesired, elDesired):
-        #Calculate Errors
-        azError = self.getAzAngle() - azDesired
-        elError = self.getElAngle() - elDesired
+        if not self.isRunning:
+            self.isRunning = True
+    
+            #Calculate Errors
+            azError = self.getAzAngle() - azDesired
+            elError = self.getElAngle() - elDesired
 
-        try:
-            #Control Loop
-            while (abs(azError) > self.azTolerance or abs(elError) > self.elTolerance):
-                print("Angles")
-                print(self.getAzAngle())
-                print(self.getElAngle())
-                if (self.getAzAngle() > azDesired + self.azTolerance):
-                    #turn counterclockwise
-                    self.azTurnLeft()
-                elif (self.getAzAngle() < azDesired-self.azTolerance):
-                    #turn clockwise
-                    self.azTurnRight()
-                else:
-                    self.azReset()
+            try:
+                #Control Loop
+                while (abs(azError) > self.azTolerance or abs(elError) > self.elTolerance):
+                    print("Angles")
+                    print(self.getAzAngle())
+                    print(self.getElAngle())
+                    if (self.getAzAngle() > azDesired + self.azTolerance):
+                        #turn counterclockwise
+                        self.azTurnLeft()
+                    elif (self.getAzAngle() < azDesired-self.azTolerance):
+                        #turn clockwise
+                        self.azTurnRight()
+                    else:
+                        self.azReset()
 
-                if (self.getElAngle() < elDesired - self.elTolerance):
-                    #extend actuator / Lower Elevation
-                    self.elTurnUp()
-                elif (self.getElAngle() > elDesired + self.elTolerance):
-                    #retract actuator / Raise Elevation
-                    self.elTurnDown()
-                else:
-                    self.elReset()
+                    if (self.getElAngle() < elDesired - self.elTolerance):
+                        #extend actuator / Lower Elevation
+                        self.elTurnUp()
+                    elif (self.getElAngle() > elDesired + self.elTolerance):
+                        #retract actuator / Raise Elevation
+                        self.elTurnDown()
+                    else:
+                        self.elReset()
 
-                #recalculate errors
-                azError = self.getAzAngle() - azDesired
-                elError = self.getElAngle() - elDesired
+                    #recalculate errors
+                    azError = self.getAzAngle() - azDesired
+                    elError = self.getElAngle() - elDesired
+                
+                self.azReset()
+                self.elReset()
             
-            self.azReset()
-            self.elReset()
-        
-        except KeyboardInterrupt:
-            self.azReset()
-            self.elReset()
+            except KeyboardInterrupt:
+                self.azReset()
+                self.elReset()
+                
+            self.isRunning = False
 
     def write(self, pinNum, writeVal):
         if not self.GUI_test:
@@ -293,6 +303,20 @@ class RotationBase:
         )  # FIXME: IN THE END WE WANT TO DISPLAY SOMETHING MORE MEANINGFUL
     
     def getPolAngle(self):
+        alpha = 0.97
+        
+        adc = wpi.analogRead(self.POL_POTENTIOMETER)
+        voltage = self.VoltsPerADCVal * wpi.analogRead(self.POL_POTENTIOMETER)
+        degrees = (voltage*self.polDegreesPerVolt)
+        
+        self.avgDeg = (1 - alpha) * degrees + alpha * self.avgDeg
+        self.volts = (1 - alpha) * voltage + alpha * self.volts
+        self.ADC = (1 - alpha) * adc + alpha * self.ADC
+        
+        return self.avgDeg + self.polDegOffset
+        #return wpi.analogRead(self.POL_POTENTIOMETER)
+        
+    def getPolAngleDisp(self):
         alpha = 0.995
         
         adc = wpi.analogRead(self.POL_POTENTIOMETER)
@@ -307,128 +331,138 @@ class RotationBase:
         #return wpi.analogRead(self.POL_POTENTIOMETER)
     
     def autoPeak(self, freq):
-        # First make sure we look at the right freq
-        ff.setCenterFreq(freq)
-    
-        # Maximize power over azimuth
-        # Might instead want a certain window size - related to time it takes to move x degrees?
-        initAz = self.getAzAngle()
-        
-
-        windSize = 10
-        window = np.repeat(0.0, windSize)
-        pwrLevels = np.array([])
-        azAngles = np.array([])
-        print(f"az angle: {self.getAzAngle()}")
-        self.azTurnRight()  # Clockwise is positive
-        while self.getAzAngle() < initAz + ff.azWindow:
-            # Exponential weighted moving average - higher alpha means the average is more resistant to change
-            # self.powerLevel = (1 - self.alpha) * self.readSig() + self.alpha * self.powerLevel
-            window[:-1] = window[1:]
-            window[-1] = ff.readSig()
-
-            # Record average power at this level
-            pwrLevels = np.append(pwrLevels, np.mean(window))
-            azAngles = np.append(
-                azAngles, self.getAzAngle()
-            )  # and record corresponding azimuth angle
-
-        print(f"az angle: {self.getAzAngle()}")
-        self.azTurnLeft()  # CCW is negative
-        
-        while self.getAzAngle() > initAz - ff.azWindow:
-            # self.powerLevel = (1 - self.alpha) * self.readSig() + self.alpha * self.powerLevel
-            window[:-1] = window[1:]
-            window[-1] = ff.readSig()
-
-            # Record average power at this level
-            pwrLevels = np.append(pwrLevels, np.mean(window))
-            azAngles = np.append(
-                azAngles, self.getAzAngle()
-            )  # and record corresponding azimuth angle
-
-        print(f"max pwr: {np.max(pwrLevels)}")
-        print(f"len pwrLevels = {len(pwrLevels)}")
-        bestAz = azAngles[np.argmax(pwrLevels[11:]) + 11]
-        print(f"best az angle: {bestAz}")
-        self.azTurnRight()
-        while self.getAzAngle() < bestAz:
-            time.sleep(
-                0.001
-            )  # 0.5*(1/64) = .0078 second resolution on the azimuth hall sensors
-        self.azReset()
-
-        # Now maximize power over elevation
-        initEl = self.getElAngle()
-        
-
-        windSize = 10
-        window = np.repeat(0.0, windSize)
-        pwrLevels = np.array([])
-        elAngles = np.array([])
-        print(f"el angle: {self.getElAngle()}")
-        self.elTurnUp()  # Up is positive
-        while self.getElAngle() < initEl + ff.elWindow:
-            # Exponential weighted moving average - higher alpha means the average is more resistant to change
-            # self.powerLevel = (1 - self.alpha) * self.readSig() + self.alpha * self.powerLevel
-            window[:-1] = window[1:]
-            window[-1] = ff.readSig()
-
-            # Record average power at this level
-            pwrLevels = np.append(pwrLevels, np.mean(window))
-            elAngles = np.append(
-                elAngles, self.getElAngle()
-            )  # and record corresponding azimuth angle
-
-        print(f"el angle: {self.getElAngle()}")
-        self.elTurnDown()  # Down is negative
-        while self.getElAngle() > initEl - ff.elWindow:
-            # self.powerLevel = (1 - self.alpha) * self.readSig() + self.alpha * self.powerLevel
-            window[:-1] = window[1:]
-            window[-1] = ff.readSig()
-
-            # Record average power at this level
-            pwrLevels = np.append(pwrLevels, np.mean(window))
-            elAngles = np.append(
-                elAngles, self.getElAngle()
-            )  # and record corresponding azimuth angle
-
-        print(f"max pwr: {np.max(pwrLevels)}")
-        print(f"len pwrLevels = {len(pwrLevels)}")
-        bestEl = elAngles[np.argmax(pwrLevels[11:]) + 11]
-        print(f"best el angle: {bestEl}")
-        self.elTurnUp()
-        while self.getElAngle() < bestEl:
-            time.sleep(
-                0.001
-            )  # 0.5*(1/184) = .0027 second resolution on the elevation hall sensors
+        if not self.isRunning:
+            self.isRunning = True
             
-        self.elReset()
+            # First make sure we look at the right freq
+            ff.setCenterFreq(freq)
         
-        print(f"power: {ff.readSig()}")
+            # Maximize power over azimuth
+            # Might instead want a certain window size - related to time it takes to move x degrees?
+            initAz = self.getAzAngle()
+            
+
+            windSize = 10
+            window = np.repeat(0.0, windSize)
+            pwrLevels = np.array([])
+            azAngles = np.array([])
+            print(f"az angle: {self.getAzAngle()}")
+            self.azTurnRight()  # Clockwise is positive
+            while self.getAzAngle() < initAz + ff.azWindow:
+                # Exponential weighted moving average - higher alpha means the average is more resistant to change
+                # self.powerLevel = (1 - self.alpha) * self.readSig() + self.alpha * self.powerLevel
+                window[:-1] = window[1:]
+                window[-1] = ff.readSig()
+
+                # Record average power at this level
+                pwrLevels = np.append(pwrLevels, np.mean(window))
+                azAngles = np.append(
+                    azAngles, self.getAzAngle()
+                )  # and record corresponding azimuth angle
+
+            print(f"az angle: {self.getAzAngle()}")
+            self.azTurnLeft()  # CCW is negative
+            
+            while self.getAzAngle() > initAz - ff.azWindow:
+                # self.powerLevel = (1 - self.alpha) * self.readSig() + self.alpha * self.powerLevel
+                window[:-1] = window[1:]
+                window[-1] = ff.readSig()
+
+                # Record average power at this level
+                pwrLevels = np.append(pwrLevels, np.mean(window))
+                azAngles = np.append(
+                    azAngles, self.getAzAngle()
+                )  # and record corresponding azimuth angle
+
+            print(f"max pwr: {np.max(pwrLevels)}")
+            print(f"len pwrLevels = {len(pwrLevels)}")
+            bestAz = azAngles[np.argmax(pwrLevels[11:]) + 11]
+            print(f"best az angle: {bestAz}")
+            self.azTurnRight()
+            while self.getAzAngle() < bestAz:
+                time.sleep(
+                    0.001
+                )  # 0.5*(1/64) = .0078 second resolution on the azimuth hall sensors
+            self.azReset()
+
+            # Now maximize power over elevation
+            initEl = self.getElAngle()
+            
+
+            windSize = 10
+            window = np.repeat(0.0, windSize)
+            pwrLevels = np.array([])
+            elAngles = np.array([])
+            print(f"el angle: {self.getElAngle()}")
+            self.elTurnUp()  # Up is positive
+            while self.getElAngle() < initEl + ff.elWindow:
+                # Exponential weighted moving average - higher alpha means the average is more resistant to change
+                # self.powerLevel = (1 - self.alpha) * self.readSig() + self.alpha * self.powerLevel
+                window[:-1] = window[1:]
+                window[-1] = ff.readSig()
+
+                # Record average power at this level
+                pwrLevels = np.append(pwrLevels, np.mean(window))
+                elAngles = np.append(
+                    elAngles, self.getElAngle()
+                )  # and record corresponding azimuth angle
+
+            print(f"el angle: {self.getElAngle()}")
+            self.elTurnDown()  # Down is negative
+            while self.getElAngle() > initEl - ff.elWindow:
+                # self.powerLevel = (1 - self.alpha) * self.readSig() + self.alpha * self.powerLevel
+                window[:-1] = window[1:]
+                window[-1] = ff.readSig()
+
+                # Record average power at this level
+                pwrLevels = np.append(pwrLevels, np.mean(window))
+                elAngles = np.append(
+                    elAngles, self.getElAngle()
+                )  # and record corresponding azimuth angle
+
+            print(f"max pwr: {np.max(pwrLevels)}")
+            print(f"len pwrLevels = {len(pwrLevels)}")
+            bestEl = elAngles[np.argmax(pwrLevels[11:]) + 11]
+            print(f"best el angle: {bestEl}")
+            self.elTurnUp()
+            while self.getElAngle() < bestEl:
+                time.sleep(
+                    0.001
+                )  # 0.5*(1/184) = .0027 second resolution on the elevation hall sensors
+                
+            self.elReset()
+            
+            print(f"power: {ff.readSig()}")
+            
+            self.isRunning = False
         
     def getChPower(self):
         return ff.readSig()
         
     def autoPol(self, expectedPol):
-        # ----------------- This section only uses math -----------------------------
-        polTolerance = 1 # degrees
-        if self.getPolAngle() > expectedPol + polTolerance:
-            self.polTurnLeft()
-            while self.getPolAngle() > expectedPol + polTolerance:
-                # print(self.getPolAngle())
-                time.sleep(
-                    0.01
-                )  # Change the time sleeping to increase resolution. Replace with "pass" for best resolution
-        else:
-            self.polTurnRight()
-            while self.getPolAngle() < expectedPol - polTolerance:
-                # print(self.getPolAngle())
-                time.sleep(
-                    0.01
-                )  # Change the time sleeping to increase resolution. Replace with "pass" for best resolution
-                
-        self.polReset()
+        if not self.isRunning:
+            self.isRunning = True
+            
+            # ----------------- This section only uses math -----------------------------
+            polTolerance = 1 # degrees
+            if self.getPolAngle() > expectedPol + polTolerance:
+                self.polTurnLeft()
+                while self.getPolAngle() > expectedPol + polTolerance:
+                    # print(self.getPolAngle())
+                    time.sleep(
+                        0.01
+                    )  # Change the time sleeping to increase resolution. Replace with "pass" for best resolution
+            else:
+                self.polTurnRight()
+                while self.getPolAngle() < expectedPol - polTolerance:
+                    # print(self.getPolAngle())
+                    time.sleep(
+                        0.01
+                    )  # Change the time sleeping to increase resolution. Replace with "pass" for best resolution
+                    
+            self.polReset()
+            
+            self.isRunning = False
 
         
 
