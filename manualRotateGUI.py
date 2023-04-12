@@ -25,17 +25,10 @@ print("Launching GUI...")
 
 sg.theme("DarkBlue12")  # Sets the color theme of GUI
 
-# def threadFunc():
-#     print("start")
-#     initTime = time.time()
-#     while time.time() < initTime + 5:
-#         time.sleep(0.1)
-
-#     print("done")
-
 
 # Creates the main window (type: sg.window)
 def make_window():
+    # Tips are text that appears when you hover over a box
     polTip = "Input desired polarization\n0 or 180: Horizontal\n90: Vertical"
     freqTip = "Enter frequency at which to read power"
 
@@ -332,4 +325,4 @@ while True:
     # window["Az ticks"].update(f"Az ticks: {myRotate.getAzTicks()}")
     # window["El ticks"].update(f"El ticks: {myRotate.getElTicks()}")
     # window["FF input"].update(f"Channel power: {myRotate.getChPower()}")
-    # window["FF input"].update("Channel power: %.5f" % 0.0)
+    window["FF input"].update("Channel power: %.5f" % 0.0)

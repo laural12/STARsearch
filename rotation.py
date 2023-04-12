@@ -98,20 +98,20 @@ class RotationBase:
             print("Called function initialize_orientation()")
             
             #Turn left until hitting limit switch
-            self.azTurnLeft()
-            while (self.readLimAz() == 0):
-                print("turning left until limit switch")
+            # self.azTurnLeft()
+            # while (self.readLimAz() == 0):
+            #     print("turning left until limit switch")
                 #pass
 
             #Stop after hitting limit switch and reset az encoder
-            self.azReset()
-            self.azHall.reset(self.azOfAzLimitSwitch)
+            # self.azReset()
+            # self.azHall.reset(self.azOfAzLimitSwitch)
             
             #Turn right until reaching elevation limit switch azimuth
-            self.azTurnRight()
-            while(self.getAzAngle() < self.azOfElLimitSwitch):
-                print("turning right to el limit switch")
-            self.azReset()
+            # self.azTurnRight()
+            # while(self.getAzAngle() < self.azOfElLimitSwitch):
+            #     print("turning right to el limit switch")
+            # self.azReset()
             
             #Turn down until hitting el limit switch
             self.elTurnDown()
@@ -119,7 +119,7 @@ class RotationBase:
                 print("Turning down")
             #Stop hall sensors and reinitialize limit switch
             self.elReset()
-            self.elHall.reset(self.elOfElLimitSwitch)
+            # self.elHall.reset(self.elOfElLimitSwitch)
             
             self.isRunning = False
     
