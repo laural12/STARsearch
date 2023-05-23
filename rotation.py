@@ -1,5 +1,3 @@
-# import WiringPi.GPIO as GPIO
-
 import numpy as np
 import time
 import sys
@@ -10,16 +8,30 @@ from fieldFox import FieldFox
 
 ff = FieldFox()
 
+# NOTE: The next few lines of code are a hacky method of forcing the device to recognize 
+# odroid_wiringpi as a python path variable. For whatever reason, the python interpreter 
+# doesn't find odroid_wiringpi on its own, so you have to manually look through your files
+# to find where it is located (fortunately this is basically always under 
+# home/[usrname]/.local/lib/[your python version]/site-packages). 
+# Unfortunately, this line will likely have to be customized to each different device.
 path = "/home/odroid/.local/lib/python3.10/site-packages"
-# path = "/home/laura/.local/lib/python3.8/site-packages"
 sys.path.insert(0, path)
 import odroid_wiringpi as wpi
+
 from AzimuthHallSensors import AzimuthHallSensors
 from ElevationHallSensors import ElevationHallSensors
 
-GUI_TEST = True
+GUI_TEST = True # A boolean used to make it easier to run the GUI for cosmetic changes on a device other than the odroid itself
 
-
+# rotation.py sets up all the GPIO pin stuff. Earlier it also set up an ISR pin, which 
+# was really finicky. Because of this, we wanted to ensure that rotation wouldn't get called 
+# and re-instantiated in multiple files across the code. This was addressed in two ways:
+# 1. Develop a code flow structure: all classes feed into rotation.py (we considered refactoring
+#    it as controller.py but ran out of time) and rotation.py feeds into the GUI. Nothing but 
+#    the GUI calls rotation.py.
+# 2. Make rotation.py a singleton class, so that even if rotation.py was re-called it would not
+#    create a copy of the class. (A singleton class only ever allows itself to be instantiated 
+#    once.) Python's way of creating a singleton class is kinda weird though.
 class Singleton(type):
     _instances = {}
 
@@ -30,32 +42,38 @@ class Singleton(type):
 
 
 class RotationBase:
+    # Define some values
     INPUT = 0
     OUTPUT = 1
     HIGH = 1
     LOW = 0
 
-    maxAngle = 360.0  # Unknown needs calibration
+    # Define some calibration values
+    maxAngle = 360.0  # This number was a guess. So far seems to have worked
     maxVoltage = 1.8  # Assumed
-    azTolerance = 0.05
+    
+    # You could go lower on these if desired, the hall sensor resolution is much finer than this, 
+    # we were just leaving a wide margin so the code wouldn't overshoot the target and go on forever 
+    azTolerance = 0.05 
     elTolerance = 0.05
-    polDegreesPerVolt = 180.0 / 0.424
-    polDegOffset = -112.0 - 20.0
+    
+    polDegreesPerVolt = 180.0 / 0.424 # We measured the voltage when polarization was ~180 degrees
+    polDegOffset = -112.0 # There was a constant offset
     VoltsPerADCVal = 0.424 / (1580.0 - 606.0)  # about 0.00176V/ADC
 
+    # Note that if you have the shifter shield pinout, these pin numbers correspond to the numbers
+    # with 'GPI' in front of them, like 21 would say GPIO (#21) or GPX21 or something like that.
     EL_LEFT_PWM = 21  # UP
     EL_RIGHT_PWM = 22  # DOWN
     AZ_LEFT_PWM = 28
     AZ_RIGHT_PWM = 30
     POL_RIGHT_PWM = 19
     POL_LEFT_PWM = 18
-    POL_POTENTIOMETER = 0  # AIN0 ???????
+    POL_POTENTIOMETER = 0  # AIN0
 
     # input pins
     AZ_ENC1 = 31
-    # AZ_ENC2 =
     EL_ENC1 = 25
-    # EL_ENC2 =
     LIMIT_ENC_AZ = 29
     LIMIT_ENC_EL = 24
 
@@ -90,6 +108,11 @@ class RotationBase:
             self.azHall = AzimuthHallSensors(currOrient["az"], self.AZ_ENC1)
             self.elHall = ElevationHallSensors(currOrient["el"], self.EL_ENC1)
 
+    # This function will turn the antenna to hit its limit switches and update its orientation to match
+    # what it has recorded as limit swtich orientation.
+    # NOTE: There are no safety checks in place. If turning (first left to azimuth limit, then right 
+    # and down to elevation limit) will cause it to hit or break something, it will just keep turning.
+    # The closest we had to a failsafe was pulling the plug.
     def initialize_orientation(self):
         if not self.isRunning:
             self.isRunning = True
